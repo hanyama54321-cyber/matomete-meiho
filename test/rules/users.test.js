@@ -111,7 +111,7 @@ test('一般ユーザーはteamをホワイトリスト外の値に変更でき�
   await assertFails(db.collection('users').doc('D12').update({ team: '本部' }));
 });
 
-test('一般ユーザーはteamをA-LOGI版に無い班ID(team_c)に変更できない(許可リストはteam_a・team_bのみ)', async () => {
+test('一般ユーザーはteamを名豊興運版に無い班ID(team_c)に変更できない(許可リストはteam_a・team_bのみ)', async () => {
   await seed();
   const db = authedContext(testEnv, 'D12').firestore();
   await assertFails(db.collection('users').doc('D12').update({ team: 'team_c' }));

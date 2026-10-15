@@ -1,5 +1,5 @@
 // seed-channels.js
-// channels 4件(全体連絡 / 昼班 / 夜班 / 管理者)を投入する(A-LOGI版)。
+// channels 4件(全体連絡 / 昼班 / 夜班 / 管理者)を投入する(名豊興運版。A-LOGI版 A-0.1.3 の構成を引き継ぎ)。
 // 管理者(admin)は管理者専用。teamId を 'admin' にすると、firestore.rules で管理者以外の読み書きが禁止される。
 // 冪等: ドキュメントIDが固定のため再実行しても壊れない。
 // 既存ドキュメントがある場合は teamId/name のみ更新し、lastMessage/createdAt は保持する
@@ -9,7 +9,7 @@
 // 班チャンネルの id / teamId は teams の id(team_a・team_b)と一致させること
 // (投稿可否のルール channelVisible() が channels.teamId と users.team を突き合わせるため)。
 // name は表示名どおり「昼班」「夜班」とする(「A班（昼班）」のようにしない)。
-// 作成と上書きのみ行い、削除はしない(廃止した安全報告 safety は、このスクリプトでは消えない)。
+// 作成と上書きのみ行い、削除はしない(A-LOGI版で廃止した安全報告 safety は、このスクリプトでは作らない・消さない)。
 
 const CHANNELS_MASTER = [
   { id: 'general', teamId: 'all',    name: '全体連絡' },

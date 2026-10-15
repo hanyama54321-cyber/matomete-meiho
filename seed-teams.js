@@ -1,10 +1,10 @@
 // seed-teams.js
-// teamsマスター(A-LOGI版: 昼班・夜班の2班)投入スクリプト。
+// teamsマスター(名豊興運版: 昼班・夜班の2班。A-LOGI版の構成を引き継ぎ)投入スクリプト。
 // 冪等: ドキュメントIDが固定(team_a・team_b)のため、何度実行しても同じ内容に上書きされるだけで壊れない。
 // 実行には管理者(admin)としての認証が必須(firestore.rules: teams書き込みはisAdmin()のみ許可)。
 // seed.html から <script src="seed-teams.js"></script> で読み込んで使う。
 //
-// A-LOGI版の班は班長名を持たない(leaderName は常に null)。呼称を変えるときは label を書き換えて
+// 名豊興運版・A-LOGI版の班は班長名を持たない(leaderName は常に null)。呼称を変えるときは label を書き換えて
 // 再実行するか、アプリの「班編成管理」から変更する。表示名(displayName)は呼称そのままにする
 // (「A班（昼班）」のような表示にしない)。index.html の saveTeamEdit() と同じ形であること。
 // teamId(team_a・team_b)自体は恒久キーなので変更しないこと。firestore.rules の許可リストとも一致させる。

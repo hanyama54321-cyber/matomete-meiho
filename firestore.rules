@@ -56,7 +56,7 @@ service cloud.firestore {
       // 一覧取得はadminのみ(ユーザー管理画面用)
       allow list: if isAdmin();
       // 本人は passwordChanged フィールドのみ、または team フィールドのみ(所属班の自己変更)を更新可(role等は変更不可)
-      // team自己変更はteam_a・team_b(A-LOGI版: 昼班・夜班)のホワイトリストのみ許可(channelVisible()がteamを信頼するため、任意値の書込みは班チャンネルへの不正アクセスに直結する)
+      // team自己変更はteam_a・team_b(名豊興運版・A-LOGI版: 昼班・夜班)のホワイトリストのみ許可(channelVisible()がteamを信頼するため、任意値の書込みは班チャンネルへの不正アクセスに直結する)
       // adminは全フィールド更新可(役割変更用)。ただし自分自身のroleは変更不可(自己降格防止)
       allow update: if (isAdmin()
             && !(myCode() == code && request.resource.data.role != resource.data.role))
@@ -125,7 +125,7 @@ service cloud.firestore {
       }
     }
 
-    // 班マスター(A-LOGI版: 昼班・夜班の2班)。読み取りは全認証ユーザー、書き込みはadminのみ
+    // 班マスター(名豊興運版・A-LOGI版: 昼班・夜班の2班)。読み取りは全認証ユーザー、書き込みはadminのみ
     match /teams/{teamId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();

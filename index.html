@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  安全配送 まとめてアプリ A-LOGI版 (Safety Delivery Matomete App for A-LOGI)
+  安全配送 まとめてアプリ 名豊興運版 (Safety Delivery Matomete App for Meiho Kouun)
   © 2026 南野. All rights reserved.
   Unauthorized copying or redistribution of this file is strictly prohibited.
 -->
@@ -14,7 +14,7 @@
      短くなり、画面下端にページ背景色の帯が残る問題があった(v0.3.2で実測により特定)。
      defaultではWebビューがステータスバーの下から始まり、この帯が発生しない -->
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="まとめてA-LOGI">
+<meta name="apple-mobile-web-app-title" content="まとめて名豊">
 <meta name="theme-color" content="#8E0E1E">
 <meta name="description" content="配送センター向け業務支援ポータル">
 <meta name="author" content="南野">
@@ -26,7 +26,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g1%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%238E0E1E%22/%3E%3Cstop%20offset%3D%2245%25%22%20stop-color%3D%22%23C8102E%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23EF4B5A%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20rx%3D%2220%22%20fill%3D%22url%28%23g1%29%22/%3E%3Crect%20x%3D%224%22%20y%3D%2220%22%20width%3D%2256%22%20height%3D%2256%22%20rx%3D%224%22%20fill%3D%22%23FFFFFF%22/%3E%3Cpath%20d%3D%22M60%2030%20L78%2030%20L90%2046%20L90%2076%20L60%2076%20Z%22%20fill%3D%22%23FFFFFF%22/%3E%3Cpath%20d%3D%22M62%2032%20L77%2032%20L86%2046%20L62%2046%20Z%22%20fill%3D%22%23C8102E%22/%3E%3Cpath%20d%3D%22M26.5%2026.5%20H37.5%20L53.5%2069.5%20H42.4%20L38.9%2060%20H25.1%20L21.6%2069.5%20H10.5%20Z%20M32%2038.5%20L35.9%2050%20H28.1%20Z%22%20fill%3D%22%23C8102E%22%20fill-rule%3D%22evenodd%22%20stroke%3D%22%23C8102E%22%20stroke-width%3D%221%22%20stroke-linejoin%3D%22round%22/%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2282%22%20r%3D%229%22%20fill%3D%22%233A0A12%22/%3E%3Ccircle%20cx%3D%2272%22%20cy%3D%2282%22%20r%3D%229%22%20fill%3D%22%233A0A12%22/%3E%3C/svg%3E">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 
-<title>安全配送まとめてアプリ A-LOGI</title>
+<title>安全配送まとめてアプリ 名豊興運</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 
 <!-- ===== Firebase SDK (compat版) ===== -->
@@ -2025,14 +2025,14 @@ header {
 <!-- ===== ログイン画面 (Firebase認証) ===== -->
 <div id="login-screen" style="display:none">
   <div class="login-card">
-    <div class="login-title">安全配送 まとめてアプリ A-LOGI</div>
+    <div class="login-title">安全配送 まとめてアプリ 名豊興運</div>
     <div class="login-sub">SAFETY DELIVERY PORTAL</div>
     <div id="login-error" class="login-error" style="display:none"></div>
     <form id="login-form" onsubmit="handleLogin(event)">
       <div class="login-field">
         <label for="login-code">乗務員コード（5桁）</label>
         <input id="login-code" type="text" inputmode="text" autocomplete="username"
-               maxlength="5" placeholder="例: 40001" required
+               maxlength="5" placeholder="例: 12345" required
                pattern="[A-Za-z0-9]{5}" title="英数字5桁で入力してください">
       </div>
       <div class="login-field">
@@ -2093,7 +2093,7 @@ header {
         <div class="logo-title">安全配送 まとめてアプリ</div>
         <div style="display:flex;align-items:center;gap:5px">
           <div class="logo-sub">SAFETY DELIVERY</div>
-          <span id="version-badge" style="font-size:7px;font-weight:700;background:rgba(200,16,46,.1);color:var(--primary);border:1px solid rgba(200,16,46,.25);border-radius:3px;padding:1px 4px;letter-spacing:.02em;line-height:1.6;white-space:nowrap">Ver.A-0.1.3</span>
+          <span id="version-badge" style="font-size:7px;font-weight:700;background:rgba(200,16,46,.1);color:var(--primary);border:1px solid rgba(200,16,46,.25);border-radius:3px;padding:1px 4px;letter-spacing:.02em;line-height:1.6;white-space:nowrap">Ver.M-0.1.0</span>
         </div>
       </div>
     </div>
@@ -2142,7 +2142,7 @@ header {
         <span class="um-icon">ℹ️</span>
         <div style="flex:1">
           <div style="font-weight:700">このアプリについて</div>
-          <div id="um-version-subtitle" style="font-size:11px;color:var(--text-muted);margin-top:1px">Ver. A-0.1.3 · 安全配送まとめてアプリ A-LOGI</div>
+          <div id="um-version-subtitle" style="font-size:11px;color:var(--text-muted);margin-top:1px">Ver. M-0.1.0 · 安全配送まとめてアプリ 名豊興運</div>
         </div>
       </button>
       <button id="um-user-mgmt-btn" class="user-menu-item hidden" onclick="openUserManagement()">
@@ -2603,15 +2603,15 @@ header {
 // ヘッダーバッジ・ユーザーメニュー・アプリ情報画面・利用状況計測(sessions.appVersion)は
 // すべてこの定数を参照する(#version-badge/#um-version-subtitleへは初期化処理でJSから反映、
 // アプリ情報画面・recordSession()は関数内で直接参照)
-const APP_VERSION = 'A-0.1.3';
+const APP_VERSION = 'M-0.1.0';
 
 /* ===== データ ===== */
 
 // ユーザー一覧（既読率計算に使用）
-/* ===== 班マスター（A-LOGI版: 昼班・夜班の2班） =====
+/* ===== 班マスター（名豊興運版: 昼班・夜班の2班。A-LOGI版の構成を引き継ぎ） =====
    Firestore スキーマ: teams/{teamId}
      - code        : 'A' / 'B'（恒久的な班コード。画面には出さない。変更しない）
-     - leaderName  : 常に null（A-LOGI版の班は班長名を持たない。HI-LINE版とスキーマをそろえるため残している）
+     - leaderName  : 常に null（名豊興運版・A-LOGI版の班は班長名を持たない。HI-LINE版とスキーマをそろえるため残している）
      - label       : 班の呼称（「昼班」「夜班」）
      - displayName : UI表示用文字列。呼称と同じ（「A班（昼班）」のような表示にはしない）
    ※ team_id 自体（team_a・team_b）は恒久キー。呼称を変えても id は変更しない。
@@ -3550,7 +3550,7 @@ async function upsertFcmToken(token, tokenIdArg) {
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     lastSeenAt: firebase.firestore.FieldValue.serverTimestamp(),
   }, { merge: true });
-  localStorage.setItem('alogi_fbFcmTokenId', tokenId);
+  localStorage.setItem('meiho_fbFcmTokenId', tokenId);
 }
 
 // 通知許可済み(Notification.permission==='granted')の場合に、SW登録→トークン取得→
@@ -3561,7 +3561,7 @@ async function registerFcmTokenIfPossible() {
   if (Notification.permission !== 'granted') return;
   if (!FCM_VAPID_KEY) { console.warn('FCM_VAPID_KEY未設定のためトークン登録をスキップします'); return; }
   try {
-    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js', { scope: '/matomete-alogi/' });
+    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js', { scope: '/matomete-meiho/' });
     const token = await firebase.messaging().getToken({ vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
     if (token) await upsertFcmToken(token);
   } catch (e) {
@@ -3575,11 +3575,11 @@ async function refreshFcmTokenIfNeeded() {
   if (!fbUser || !canShowNotifyOptIn() || !fcmSupported()) return;
   if (Notification.permission !== 'granted' || !FCM_VAPID_KEY) return;
   try {
-    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js', { scope: '/matomete-alogi/' });
+    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js', { scope: '/matomete-meiho/' });
     const token = await firebase.messaging().getToken({ vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
     if (!token) return;
     const tokenId = await sha256Hex(token);
-    const storedTokenId = localStorage.getItem('alogi_fbFcmTokenId');
+    const storedTokenId = localStorage.getItem('meiho_fbFcmTokenId');
     if (storedTokenId === tokenId) {
       await fbDb.collection('users').doc(fbUser.code).collection('tokens').doc(tokenId)
         .update({ lastSeenAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
@@ -3597,8 +3597,8 @@ async function refreshFcmTokenIfNeeded() {
 // ログアウト時にこの端末のトークンドキュメントを削除し、deleteToken()を呼ぶ。
 // 忘れると、同じ端末を別の乗務員が使った場合に前の利用者宛の通知が届いてしまう(最優先要件)
 async function deleteFcmTokenForThisDevice() {
-  const tokenId = localStorage.getItem('alogi_fbFcmTokenId');
-  localStorage.removeItem('alogi_fbFcmTokenId');
+  const tokenId = localStorage.getItem('meiho_fbFcmTokenId');
+  localStorage.removeItem('meiho_fbFcmTokenId');
   if (tokenId && fbUser) {
     try {
       await fbDb.collection('users').doc(fbUser.code).collection('tokens').doc(tokenId).delete();
@@ -3652,7 +3652,7 @@ function openProfileEdit() {
   // (firestore.rulesのteam自己更新ホワイトリストがteam_a・team_bのみでnullを許可しないため)
   const teamOptions = teams.filter(t => t.id !== 'all');
   // 班が未設定の人には「選択してください」を初期表示にする。これが無いと選択欄に先頭の班(昼班)が
-  // 表示され、そのまま保存すると本人が選んでいない班に入ってしまう(A-LOGI版は本人が班を選ぶ運用)。
+  // 表示され、そのまま保存すると本人が選んでいない班に入ってしまう(名豊興運版・A-LOGI版は本人が班を選ぶ運用)。
   // 一度ほかを選ぶと戻せない選択肢(disabled)。班が設定済みの人には出さない
   const needsTeamChoice = !fbUser.team;
   openModal(`
@@ -3951,7 +3951,7 @@ async function updateNotifTokenStatus() {
   await registerFcmTokenIfPossible();
   const el = document.getElementById('notif-token-status');
   if (!el) return; // モーダルが既に閉じられていた場合は何もしない
-  const tokenId = localStorage.getItem('alogi_fbFcmTokenId');
+  const tokenId = localStorage.getItem('meiho_fbFcmTokenId');
   el.textContent = tokenId
     ? '✓ 通知を受け取れる状態です'
     : '⚠️ この端末では通知を受け取れない可能性があります(通信環境を確認し、再度お試しください)';
@@ -3974,13 +3974,10 @@ async function saveNotifPrefs() {
   }
 }
 
-// 更新履歴(画面の「このアプリについて」に出る)。A-LOGI版の版番号(A-x.y.z)は HI-LINE版(matomete-app)とは
-// 別系統のため、派生元 v0.4.5 までの履歴はここに載せない(経緯は matomete-app 側の記録を参照)
+// 更新履歴(画面の「このアプリについて」に出る)。名豊興運版の版番号(M-x.y.z)は HI-LINE版(matomete-app)・
+// A-LOGI版(matomete-alogi)とは別系統のため、派生元 A-0.1.3 までの履歴はここに載せない(経緯は matomete-alogi 側の記録を参照)
 const CHANGELOG = [
-  { version: 'A-0.1.3', items: ['チャットの #安全報告 を廃止し、管理者専用の #管理者 を追加'] },
-  { version: 'A-0.1.2', items: ['周知の一覧で、本文を2行まで表示', 'お知らせ・KYT・手順書などに入力した記号(< や & など)が、そのままの文字で表示されるよう修正'] },
-  { version: 'A-0.1.1', items: ['チャットのメンバー一覧を、登録されている乗務員で表示(管理者)', 'チャットの「オンライン」表示と、ゲームタブの仮の登録状況(管理者)を削除', 'チャットの「最終投稿」を日時で表示(管理者)'] },
-  { version: 'A-0.1.0', items: ['初版(安全配送まとめてアプリ v0.4.5 をもとに作成)'] },
+  { version: 'M-0.1.0', items: ['初版(安全配送まとめてアプリ A-LOGI版 A-0.1.3 をもとに作成)'] },
 ];
 
 function openAppInfo() {
@@ -3993,7 +3990,7 @@ function openAppInfo() {
       </div>
       <div class="modal-body" style="text-align:center;padding-bottom:8px">
         <div style="font-size:48px;margin:20px 0 12px">🚚</div>
-        <div style="font-weight:700;font-size:18px;color:var(--navy);margin-bottom:4px">安全配送 まとめてアプリ A-LOGI</div>
+        <div style="font-weight:700;font-size:18px;color:var(--navy);margin-bottom:4px">安全配送 まとめてアプリ 名豊興運</div>
         <div style="font-size:12px;letter-spacing:.18em;color:var(--primary);font-weight:700;margin-bottom:20px">SAFETY DELIVERY PORTAL</div>
         <div class="divider"></div>
         ${[
@@ -7178,7 +7175,7 @@ function toggleFbShare(checked) {
 async function subscribeAnonReportIfPossible(reportId) {
   if (!fcmSupported() || Notification.permission !== 'granted' || !FCM_VAPID_KEY) return;
   try {
-    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js', { scope: '/matomete-alogi/' });
+    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js', { scope: '/matomete-meiho/' });
     const token = await firebase.messaging().getToken({ vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
     if (!token) return;
     await fbFunctions.httpsCallable('subscribeToReport')({ reportId, token });
@@ -7290,12 +7287,12 @@ async function submitFb() {
 
 // 匿名投稿の自分の報告ID(localStorage)を追跡する。サーバー側に投稿者を紐付けるフィールドは
 // 一切持たないため、この端末のlocalStorageのみが「自分の匿名報告」を辿る手段になる。
-// キー名の接頭辞 alogi_ は外さないこと。HI-LINE版(/matomete-app/)と同じドメインで配信されるため
-// localStorageを共有しており、同名キーだと1台で両方を使う人の記録を互いに上書きしてしまう
-// (FCMトークンIDの 'alogi_fbFcmTokenId' も同じ理由)。
+// キー名の接頭辞 meiho_ は外さないこと。HI-LINE版(/matomete-app/)・A-LOGI版(/matomete-alogi/)と同じドメインで
+// 配信されるためlocalStorageを共有しており、同名キーだと1台で複数の版を使う人の記録を互いに上書きしてしまう
+// (FCMトークンIDの 'meiho_fbFcmTokenId' も同じ理由)。
 function getAnonReportIds() {
   try {
-    return JSON.parse(localStorage.getItem('alogi_fbMyAnonReportIds') || '[]');
+    return JSON.parse(localStorage.getItem('meiho_fbMyAnonReportIds') || '[]');
   } catch (e) {
     return [];
   }
@@ -7304,7 +7301,7 @@ function getAnonReportIds() {
 function saveAnonReportIdLocally(id) {
   const ids = getAnonReportIds();
   ids.unshift(id);
-  localStorage.setItem('alogi_fbMyAnonReportIds', JSON.stringify(ids.slice(0, 200)));
+  localStorage.setItem('meiho_fbMyAnonReportIds', JSON.stringify(ids.slice(0, 200)));
 }
 
 function resetFb() {
@@ -8252,7 +8249,7 @@ function toggleDriverCreateForm() {
     el.innerHTML = `
       <div class="form-group">
         <label class="form-label">乗務員コード（5桁）</label>
-        <input id="um-new-code" class="input-field" maxlength="5" placeholder="例: 40001">
+        <input id="um-new-code" class="input-field" maxlength="5" placeholder="例: 12345">
       </div>
       <div class="form-group">
         <label class="form-label">氏名</label>
@@ -8455,7 +8452,7 @@ async function changeUserRole(code) {
 /* ===== 班編成管理（管理者のみ） =====
    teamsは既にattachTeamsListener()による生きたミラーなので、個別フェッチ不要。
    保存後はonSnapshotで自動的に全画面(チャット・プロフィール・この画面自身)へ反映される。
-   A-LOGI版の班(昼班・夜班)は班長名を持たないため、どの班も呼称(label)を直接編集する。
+   名豊興運版・A-LOGI版の班(昼班・夜班)は班長名を持たないため、どの班も呼称(label)を直接編集する。
    表示名(displayName)は呼称そのまま。HI-LINE版の「A班（○○班）」のように班コードを前に付けない。 */
 
 function openTeamManagement() {
@@ -8874,7 +8871,7 @@ async function diagCopy() {
 /* ===== 初期化 ===== */
 // ヘッダーバッジ・ユーザーメニューのバージョン表記をAPP_VERSION定数から反映(静的HTML直書きの値は初期表示用フォールバック)
 document.getElementById('version-badge').textContent = 'Ver.' + APP_VERSION;
-document.getElementById('um-version-subtitle').textContent = 'Ver. ' + APP_VERSION + ' · 安全配送まとめてアプリ A-LOGI';
+document.getElementById('um-version-subtitle').textContent = 'Ver. ' + APP_VERSION + ' · 安全配送まとめてアプリ 名豊興運';
 renderAnn();
 renderChannelChips();
 renderChat();
