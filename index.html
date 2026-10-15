@@ -37,13 +37,17 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
 <script>
+// ★【要差し替え】名豊興運の Firebase プロジェクト matomete-meiho の値(南野さんから受け取る)。
+//   Firebase コンソール → プロジェクトの設定 → マイアプリ(ウェブ)→ SDK の設定と構成「構成」の値をそのまま入れる。
+//   projectId 以外は未確定のため仮の文字列にしてある(空文字にすると Auth の初期化で例外になり画面が出ないため)。
+//   差し替えたら「__MEIHO_」で全文検索し、残りが無いことを確かめる(firebase-messaging-sw.js も同じ値にする)
 const firebaseConfig = {
-  apiKey: "AIzaSyBnsA1HjJaqIxTqZVoJf6PYSxI8kiLs__c",
-  authDomain: "matomete-alogi.firebaseapp.com",
-  projectId: "matomete-alogi",
-  storageBucket: "matomete-alogi.firebasestorage.app",
-  messagingSenderId: "252853368767",
-  appId: "1:252853368767:web:435764e7010e643dfed30a"
+  apiKey: "__MEIHO_API_KEY__",
+  authDomain: "__MEIHO_AUTH_DOMAIN__",
+  projectId: "matomete-meiho",
+  storageBucket: "__MEIHO_STORAGE_BUCKET__",
+  messagingSenderId: "__MEIHO_MESSAGING_SENDER_ID__",
+  appId: "__MEIHO_APP_ID__"
 };
 // この設定はfirebase-messaging-sw.jsのfirebaseConfigと同期させること。
 // SW側はこの変数を参照できず、値を変更したら両方直す必要がある
@@ -56,7 +60,8 @@ const fbFunctions = firebase.app().functions('asia-northeast1');
 // FCM Web Push用VAPID公開鍵(Firebase Console → プロジェクト設定 → Cloud Messaging →
 // ウェブ構成 → 鍵ペアの生成、で取得。公開鍵のためリポジトリに含めてよい)。
 // getToken({ vapidKey })に渡す唯一の参照元。ここ以外に直書きしないこと
-const FCM_VAPID_KEY = 'BLopNP5-qviVPzWL7D13Uky4GCl6JFsLH-6WBkcybR_teOc0fNSaZITT746Bdya9IQg3DTG-gdNQMvTp6a1C4rw';
+// ★【要差し替え】名豊興運(matomete-meiho)の VAPID 公開鍵。空のあいだはプッシュ通知の登録をスキップする(既存の分岐)
+const FCM_VAPID_KEY = '';
 </script>
 <style>
 /* ===== テーマ変数 ===== */

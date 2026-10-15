@@ -16,13 +16,17 @@ const SW_VERSION = 'sw-1';
 
 // この設定はindex.htmlのfirebaseConfigと同期させること。
 // SWはindex.html側の変数を参照できないため、値を変更したら両方直す必要がある
+// ★【要差し替え】名豊興運の Firebase プロジェクト matomete-meiho の値(南野さんから受け取る)。
+//   Firebase コンソール → プロジェクトの設定 → マイアプリ(ウェブ)→ SDK の設定と構成「構成」の値をそのまま入れる。
+//   projectId 以外は未確定のため仮の文字列にしてある(空文字にすると Auth の初期化で例外になり画面が出ないため)。
+//   差し替えたら「__MEIHO_」で全文検索し、残りが無いことを確かめる(index.html も同じ値にする)
 const firebaseConfig = {
-  apiKey: "AIzaSyBnsA1HjJaqIxTqZVoJf6PYSxI8kiLs__c",
-  authDomain: "matomete-alogi.firebaseapp.com",
-  projectId: "matomete-alogi",
-  storageBucket: "matomete-alogi.firebasestorage.app",
-  messagingSenderId: "252853368767",
-  appId: "1:252853368767:web:435764e7010e643dfed30a"
+  apiKey: "__MEIHO_API_KEY__",
+  authDomain: "__MEIHO_AUTH_DOMAIN__",
+  projectId: "matomete-meiho",
+  storageBucket: "__MEIHO_STORAGE_BUCKET__",
+  messagingSenderId: "__MEIHO_MESSAGING_SENDER_ID__",
+  appId: "__MEIHO_APP_ID__"
 };
 
 firebase.initializeApp(firebaseConfig);
