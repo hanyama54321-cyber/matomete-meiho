@@ -1,0 +1,26 @@
+{
+  "name": "安全配送まとめてアプリ A-LOGI",
+  "short_name": "まとめてA-LOGI",
+  "description": "配送センター向け業務支援ポータル",
+  "start_url": "/matomete-alogi/",
+  "scope": "/matomete-alogi/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#8E0E1E",
+  "background_color": "#F6F4EE",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
