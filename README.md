@@ -1,15 +1,16 @@
-# matomete-alogi
+# matomete-meiho
 
-協力会社 A-LOGI 専用の「安全配送まとめてアプリ」。HI-LINE版 `matomete-app` の `v0.4.5` をもとに、
-独立したリポジトリ・独立した Firebase プロジェクトとして立ち上げたもの。機能は v0.4.5 と同じ。
+名豊興運 専用の「安全配送まとめてアプリ」。A-LOGI版 `matomete-alogi` の `A-0.1.3` をもとに、
+独立したリポジトリ・独立した Firebase プロジェクト(`matomete-meiho`)として立ち上げたもの。機能は A-0.1.3 と同じ
+(A-0.1.3 は HI-LINE版 `matomete-app` の `v0.4.5` をもとにしている)。配色とアイコンは [design/DESIGN.md](design/DESIGN.md) による。
 現在の進み具合と注意点は [HANDOFF.md](HANDOFF.md) を参照。
 
 ## ブランチ運用
 
-- `main`: **公開ブランチ**。GitHub Pages（`https://hanyama54321-cyber.github.io/matomete-alogi/`）はこのブランチのルートを配信する（初回公開は A-0.1.0）。
+- `main`: **公開ブランチ**。GitHub Pages（`https://hanyama54321-cyber.github.io/matomete-meiho/`）はこのブランチのルートを配信する（初回公開は M-0.1.0 の予定。**まだ公開していない**）。
   - **このリポジトリは public**。コミットした内容はそのまま公開される。乗務員名簿・パスワード・鍵ファイル、管理者コードやパスワード運用が書かれた配布物（マニュアル類）を置かないこと（理由は [HANDOFF.md](HANDOFF.md) 参照）。
 - `develop`: 開発ブランチ。リリースのタイミングで `main` へマージする。
-- 版番号は `A-x.y.z`（HI-LINE版の `v0.x.y` とは別系統）。タグも同じ名前で付ける。
+- 版番号は `M-x.y.z`（HI-LINE版の `v0.x.y`・A-LOGI版の `A-x.y.z` とは別系統）。タグも同じ名前で付ける。
 
 ## リリース手順（develop → main）
 
@@ -25,8 +26,7 @@
    - ログイン、パスワード変更、乗務員マスタ、班の選択、各タブの表示を一通り確認
    - **ルールテストを回帰確認として実行し、全passを確認**（`firestore.rules` を変更していない場合も実施する）
      ```
-     export PATH="/c/Program Files/Eclipse Adoptium/jre-21.0.11.10-hotspot/bin:$PATH"
-     npm run test:rules
+     npx firebase-tools emulators:exec --only firestore,storage --project matomete-meiho "node --test test/rules/*.test.js"
      ```
    - **`index.html` のインラインscriptを構文チェック**（CSSの構造を変えた場合は、ブラウザのCSSOMでルール総数と並びも確認する。セレクタ欠落や `}` の過不足は構文チェックでは検出できない）
    - `APP_VERSION` と `CHANGELOG` が今回の版になっていることを確認
@@ -39,10 +39,10 @@
 2. **ロールバック用タグを、マージ前の `main` 先端に作成**
 
    切り戻し先を確定させてからマージする。命名は `<今の本番版>-pre-<変更の要約>`。
-   **初回公開（A-0.1.0）は `main` が取り込み直後の状態（HI-LINE版の中身のまま）なので、この手順は飛ばす。**
+   **初回公開（M-0.1.0）は `main` に design/ しか無い状態なので、この手順は飛ばす。**
    ```
-   git tag -a A-0.1.0-pre-xxxx <main先端> -m "A-0.1.1リリース前のmain先端(ロールバック用)"
-   git push origin A-0.1.0-pre-xxxx
+   git tag -a M-0.1.0-pre-xxxx <main先端> -m "M-0.1.1リリース前のmain先端(ロールバック用)"
+   git push origin M-0.1.0-pre-xxxx
    ```
 
 3. **マージ（`--no-ff`）**
@@ -53,27 +53,27 @@
    git pull --ff-only origin main
    git merge --no-ff --no-commit develop     # コンフリクトが出たら止めて相談
    git diff --name-only --diff-filter=U      # 空であることを確認
-   git commit                                 # メッセージは "Release A-X.Y.Z: 概要"
+   git commit                                 # メッセージは "Release M-X.Y.Z: 概要"
    git diff develop main --stat               # 空＝内容一致 を確認
    git push origin main
    ```
 
 4. **版タグを作成**
    ```
-   git tag -a A-0.1.0 -m "A-0.1.0: 概要"
-   git push origin A-0.1.0
+   git tag -a M-0.1.0 -m "M-0.1.0: 概要"
+   git push origin M-0.1.0
    ```
 
 5. **公開後確認**
    - **GitHub Pages の反映を待つ**（30〜90秒。キャッシュを避けてクエリを付けて取得する）
      ```
-     curl -s "https://hanyama54321-cyber.github.io/matomete-alogi/index.html?cb=$RANDOM" | grep -o "const APP_VERSION = '[^']*'"
+     curl -s "https://hanyama54321-cyber.github.io/matomete-meiho/index.html?cb=$RANDOM" | grep -o "const APP_VERSION = '[^']*'"
      ```
    - ブラウザで開き、**バージョン表記が今回の版**であること・`hasFirebase` が `true` であること・コンソールエラーが無いことをライブ確認
-   - `https://hanyama54321-cyber.github.io/matomete-alogi/` から実際にログイン（乗務員コード + パスワード）できることを確認
-   - 管理者アカウント（AAAAA/BBBBB/CCCCC）・乗務員アカウント（40000番台）それぞれで表示が正しいことを確認
-   - **HI-LINE版（`https://hanyama54321-cyber.github.io/matomete-app/`）が今までどおり動いていることを確認**（同じドメインで配信しているため）
-   - **A-LOGI 向けの配布物（案内・マニュアル類）がある場合は、記述がこの版と合っているか突き合わせる**（リポジトリ外にあり自動追随しない）
+   - `https://hanyama54321-cyber.github.io/matomete-meiho/` から実際にログイン（乗務員コード + パスワード）できることを確認
+   - 管理者アカウント（AAAAA/BBBBB/CCCCC）・乗務員アカウント（名豊興運の乗務員コード）それぞれで表示が正しいことを確認
+   - **HI-LINE版（`https://hanyama54321-cyber.github.io/matomete-app/`）・A-LOGI版（`https://hanyama54321-cyber.github.io/matomete-alogi/`）が今までどおり動いていることを確認**（同じドメインで配信しているため）
+   - **名豊興運 向けの配布物（案内・マニュアル類）がある場合は、記述がこの版と合っているか突き合わせる**（リポジトリ外にあり自動追随しない）
      - 観点: バージョン表記 ／ 画面図解と実物の見た目（配色・アイコン・班名）
      - ずれていれば別途更新する（**リリース自体はブロックしない**）
 

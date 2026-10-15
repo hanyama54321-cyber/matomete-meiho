@@ -2,6 +2,9 @@
 # (createUser/削除等の特権操作を含むため、公開リポジトリに含めない運用)
 seed.html
 
+# 乗務員名簿(氏名を含む)。このリポジトリは public のため、CSV は置き場所を問わずコミットしない
+*.csv
+
 # ルールテスト用の依存関係・ログ
 node_modules/
 firebase-debug.log

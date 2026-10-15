@@ -12,7 +12,7 @@
 //                                + Firestore doc新規作成(role:'driver', team:null, passwordChanged:false)
 //   - CSVに存在しない既存コード → 一切触らない(自動削除・無効化なし)
 //   - AAAAA/BBBBB/CCCCC(メンテナンス用管理者コード) → 常にスキップ(除外ログ)
-//   - "40000"(研修用)は保護対象外(通常のupdate/create対象)
+//   - 研修用などのコードも保護対象外(5桁英数字であれば通常のupdate/create対象)
 //
 // db: firebase.firestore()のメインアプリインスタンス(Firestore書込用)。
 // seederAuth: seed.htmlのセカンダリFirebaseアプリのauth()インスタンス(Auth作成専用、
