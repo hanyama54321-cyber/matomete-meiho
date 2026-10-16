@@ -1,4 +1,4 @@
-# 引き継ぎ書 — 名豊興運版(2026-10-15時点)
+# 引き継ぎ書 — 名豊興運版(2026-10-17時点)
 
 新しいセッションで作業を再開する際は、まずこのファイルと [README.md](README.md)・[TECH_DEBT.md](TECH_DEBT.md)・[design/DESIGN.md](design/DESIGN.md) を読んでください。
 派生元 A-LOGI版の立ち上げで踏んだ手順と注意点は、A-LOGI版 `hanyama54321-cyber/matomete-alogi` の `HANDOFF.md` に詳しく残っています(このファイルは、そのうち名豊興運版に関係するものを引き継いでいます)。
@@ -46,9 +46,9 @@
 | 2 | 名称・配信パス・保存キー・版表記の差し替え | 済(`77f806d`) |
 | 3 | 接続先を `matomete-meiho` に | 済(`e4d3a45`、値の差し込みは 2026-10-16) |
 | 4 | 配色・アイコン・透かしを名豊カラーに | 済(`df5114e`) |
-| 5 | 乗務員・管理者リストの投入準備 | 名簿CSV(26行)は PC の作業フォルダに配置済み(リポジトリ外)。**名豊興運用の `seed.html` は未作成**(下の「seed.html の作り方」) |
-| 6 | Firebase プロジェクトの設定・ルールと関数のデプロイ | コンソール設定は済(2026-10-16、南野さん)。**デプロイは未**(下の「PC でのデプロイと初期投入の手順」の手順0〜3) |
-| 7 | 初期データ投入 | 未(同じく手順4) |
+| 5 | 乗務員・管理者リストの投入準備 | 済(2026-10-17)。名簿CSV(26行)と名豊興運用の `seed.html` は PC の作業フォルダにある(リポジトリ外・コミットしない) |
+| 6 | Firebase プロジェクトの設定・ルールと関数のデプロイ | 済(2026-10-17、PC の Claude Code と南野さん。下の「デプロイと初期投入の結果」) |
+| 7 | 初期データ投入 | 済(2026-10-17。同じく下の「デプロイと初期投入の結果」) |
 | 8 | 公開(`main` へのマージ、GitHub Pages の有効化) | 未(南野さんの指示が出てから) |
 
 ### 決まったこと(2026-10-16、南野さん)
@@ -64,7 +64,9 @@
 
 - 初期の所属班、研修用 `30000` の扱い
 - 表示名(「安全配送まとめてアプリ 名豊興運」/ 短縮「まとめて名豊」)、A-LOGI 由来の設定(下の一覧)、ブランチ運用
-- 【要確認】予算アラートの設定状況(2026-10-16 の連絡では未記入)
+- 公開(手順5)の時期
+
+予算アラートは設定済み(2026-10-17、南野さんに確認)。
 
 ## Firebase プロジェクト `matomete-meiho`
 
@@ -98,8 +100,37 @@ A-LOGI の値はコードに残っていない(全文検索で確認)。
 | VAPID 公開鍵 | 65 バイトの P-256 公開鍵(先頭 `0x04`)として正しい形式 |
 | ルールテスト | 198件すべて pass(エミュレーターのみ) |
 
-いま公開されているルールはコンソールの「本番環境モード」の初期値(すべて拒否)なので、**ルールをデプロイするまでアプリは使えない**。
-管理者によるファイルのアップロードの実地確認は、ルールのデプロイと初期データ投入のあと(下の手順4)。
+(2026-10-16 時点の記録。ルールは 2026-10-17 にデプロイ済みで、管理者によるファイルのアップロード・削除も実地で確認した。下の「デプロイと初期投入の結果」)
+
+## デプロイと初期投入の結果(2026-10-17、PC の Claude Code)
+
+下の「PC でのデプロイと初期投入の手順」の手順0〜4を行った。コマンドは PC の Claude Code が実行し、対話の質問が出る本実行は南野さんが Git Bash で実行した。
+本番の Auth・Firestore・Storage の件数と設定は、ログイン済みの firebase-tools の権限で読み取って確認した(読み取りのみ。書き込みは下の `users/AAAAA` の1件だけ)。
+
+| 手順 | 結果 |
+|---|---|
+| 0 準備 | firebase-tools 15.23.0、`hanyama54321@gmail.com`、Temurin 21、`.firebaserc` は `matomete-meiho`、名簿CSV 26行(30000〜30101、重複0)。予算アラートは設定済み |
+| 1 ルールテスト | 198件すべて pass(エミュレーターのみ) |
+| 2 ルール・インデックス | `Deploy complete!`。インデックス2件はリポジトリと一致。**権限の質問には誰も答えていない**(下の「手順書と違ったこと」)が、`roles/firebaserules.firestoreServiceAgent` は付いていた |
+| 3 Functions | 初回は8関数のうち6関数が失敗した(Firestore トリガー4件は「Eventarc の権限がまだ反映されていない」、呼び出し型2件は Cloud Build の「予期しないエラー」。A-LOGI版と同じ)。5分後の再実行1回で全件成功。8関数とも `v2`・`asia-northeast1`・`nodejs22`。コンテナイメージの保存日数は1日 |
+| IAM | 実行前10件 → 実行後26件。増えた16件はすべて「了承済みの権限」の一覧の中(2段目の3件、3段目の13件)。削除なし。一覧に無い権限は増えていない |
+| seed.html | A-LOGI版からコピーして書き換えた(firebaseConfig・接続先の表示と警告・⑤⑧の説明・名前)。A-LOGI の値は0件。A-LOGI用の元のファイルは変わっていない(ハッシュで確認) |
+| 4 初期投入 | Auth 29件、`users` 29件(管理者 `AAAAA`/`BBBBB`/`CCCCC` は `role: admin`、乗務員26件は `role: driver`。全員 `team: null`・`passwordChanged: false`。乗務員のコードは CSV の26件と過不足なく一致)。`teams` 2件、`channels` 4件(`general`/`team_a`/`team_b`/`admin`)、`kyt` 7件、`manuals` サンプル5件(⑥ も投入した)、`announcements` 0件、`config/notifications` は `openToAllUsers: true`。サインアップはオフに戻した(`disabledUserSignup: true`) |
+| 4 投入後の確認 | 南野さんが `index.html` で確認し、すべて問題なし(版表記、乗務員マスタ26名、班・チャンネル・KYT・手順書、PDF のアップロードと削除、乗務員 `30003` でのログインと「通知設定」の表示)。テストの PDF は削除済みで、Storage は0件 |
+
+- 最初の `users/AAAAA` は案A(PC の Claude Code がログイン済みの firebase-tools の権限で、Firestore の `createDocument` で1件作成。既存なら失敗する方法で、上書きはしていない)で作った
+- 控え(すべてリポジトリの外、PC の `../meiho-*`): IAM の JSON(`meiho-iam-before.json`・`meiho-iam-after.json` と途中の段階のもの)、Functions のドライランと初回のログ、ルールテストのログ。氏名は含まない
+
+### 手順書と違ったこと(次回の作業で気をつけること)
+
+- **対話の質問は、アプリの Terminal パネルでは入力が届かなかった。** 手順2の本実行を Claude Code がアプリの Terminal パネルで起動したところ、南野さんが入力した Y が質問に届かなかった。
+  同じコマンドを南野さんが Git Bash で実行すると、ルールがすでにアップロード済みとして(`already up to date`)質問が出ないまま公開まで進んだ。
+  そのあと、待ったままのタブに Ctrl+C を送ると、firebase-tools は質問だけを閉じ(`[rules] Error checking or updating Cloud Storage for Firebase service account permissions.` と表示)、権限を付けないまま残りのデプロイを最後まで行った(中身は同じルール)。
+  **結果として、誰も Y を答えていないのに権限は付いていた**(手順2より前の控えが無いので、いつ付いたかは分からない。コンソールで Storage を作ったときに付いた可能性がある)。
+  → 対話の質問が出るコマンドは、最初から南野さんの Git Bash で実行する。質問で待っているプロセスに、止めるつもりで Ctrl+C を送らない
+- **seed.html をファイルとして直接開くと、① の Auth 作成が失敗する。** 表示と `projectId` は正しく見えるが、Auth が `file://` からの実行を受け付けない。必ず `http://localhost:8000/seed.html` で開く
+- **ログインしたあとの ① の押し直しが抜けやすい。** 今回は抜けていて、`users/BBBBB`・`CCCCC` が作られないまま ③以降が終わっていた。読み取りで気づき、① を押し直して直した
+- サインアップをオフにして保存したつもりでも、反映されていないことがあった。保存し直して読み取りで確かめた(A-LOGI版でも戻し忘れがあった)
 
 ## PC でのデプロイと初期投入の手順(そのまま使える版)
 
@@ -163,6 +194,7 @@ npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage --pro
 ```
 
 **`--non-interactive` も `--force` も付けない**(付けると権限の質問が出ず、付与されない)。
+**南野さんの Git Bash で実行する**(アプリの Terminal パネルでは質問に入力が届かなかった。2026-10-17)。
 
 - [ ] 途中で `Cloud Storage for Firebase needs an IAM Role to use cross-service rules. Grant the new role? (Y/n)` と聞かれる → **Y**(了承済み)
 - [ ] `updated service account for cross-service rules...` と表示され、最後に `Deploy complete!`
@@ -221,7 +253,7 @@ npx firebase-tools functions:list --project matomete-meiho
 **(1) 準備**
 
 - [ ] Firebase コンソール → Authentication →「設定」→「ユーザーアクション」→「作成(サインアップ)を有効にする」を**オン**
-- [ ] `python -m http.server 8000`(作業フォルダで実行)→ ブラウザで `http://localhost:8000/seed.html`
+- [ ] `python -m http.server 8000`(作業フォルダで実行)→ ブラウザで `http://localhost:8000/seed.html`(ファイルを直接開かない。`file://` では ① の Auth 作成が失敗する)
 - [ ] 画面上部が「名豊興運」「matomete-meiho」の表示で、警告が出ていない。開発者ツールのコンソールで `firebase.app().options.projectId` が `matomete-meiho`
 
 **(2) 管理者3件(メンテ用 `AAAAA`・`BBBBB`・`CCCCC` のみ。乗務員への管理者権限は初期投入では付けない)**
@@ -231,7 +263,8 @@ npx firebase-tools functions:list --project matomete-meiho
    - 案A: PC の Claude Code が、ログイン済みの firebase-tools の権限で Firestore に1件書き込む(A-LOGI版はこちら)
    - 案B: Firebase コンソール → Firestore →「コレクションを開始」→ コレクションID `users` → ドキュメントID `AAAAA` → フィールド
      `name`(string)`管理者A`、`role`(string)`admin`、`team`(null)、`passwordChanged`(boolean)`false`
-3. `seed.html` で `AAAAA` / パスワード `AAAAA` でログイン →「管理者としてログイン中: AAAAA」→ **① をもう一度** → `users` 3件(`AAAAA` は同じ内容で上書き)
+3. `seed.html` で `AAAAA` / パスワード `AAAAA` でログイン →「管理者としてログイン中: AAAAA」→ **① をもう一度** → `users` 3件(`AAAAA` は同じ内容で上書き)。
+   **③ に進む前に必ず押す**(2026-10-17 は抜けていて、`BBBBB`・`CCCCC` の `users` が無いまま進んでいた)
 
 **(3) 班・チャンネル・KYT・手順書サンプル**(管理者でログインした状態で。2回押しても壊れない)
 
@@ -338,7 +371,7 @@ A-LOGI版 A-0.1.3 の設定をそのまま引き継いでいる。次のもの�
 ### seed.html の作り方(PC で。手順4の前までに)
 
 `seed.html` は `.gitignore` で除外していて、A-LOGI版のリポジトリにも、このリポジトリにも入っていない。
-2026-10-16 時点、名豊興運用はまだ無い(PC の `matomete-alogi/seed.html` は A-LOGI の接続先のまま=無事であることを読み取りで確認済み)。
+2026-10-17 にこの手順で名豊興運用を作り、PC の作業フォルダ `matomete-meiho` に置いた(コミットしていない)。PC の `matomete-alogi/seed.html` は変わっていない(ハッシュで確認)。
 A-LOGI版で HI-LINE版から作ったときと同じやり方で、**コピーしてから書き換える**。
 
 1. コピーする(**`cp`。`mv` にしない**。A-LOGI用の元のファイルには一切書き込まない)
