@@ -21,7 +21,7 @@
 | 項目 | A-LOGI版 | 名豊興運版 |
 |---|---|---|
 | 配信パス | `/matomete-alogi/` | `/matomete-meiho/` |
-| Firebase | `matomete-alogi` | `matomete-meiho`(**値は未受領。下の「Firebase の差し替え箇所」**) |
+| Firebase | `matomete-alogi` | `matomete-meiho`(プロジェクト番号 `1085038876307`。下の「Firebase プロジェクト」) |
 | ブラウザ保存領域のキー | `alogi_fbFcmTokenId` / `alogi_fbMyAnonReportIds` | `meiho_fbFcmTokenId` / `meiho_fbMyAnonReportIds` |
 | 名称 | 「安全配送まとめてアプリ A-LOGI」/ 短縮「まとめてA-LOGI」 | 「安全配送まとめてアプリ 名豊興運」/ 短縮「まとめて名豊」 |
 | 配色・アイコン | 赤基調・A | 名豊カラー(青基調)・M(下の「配色」) |
@@ -44,46 +44,113 @@
 |---|---|---|
 | 1 | A-LOGI版 A-0.1.3 のコピーで土台を作る(`design/` は残す) | 済(`5a1d5d6`) |
 | 2 | 名称・配信パス・保存キー・版表記の差し替え | 済(`77f806d`) |
-| 3 | 接続先を `matomete-meiho` に(値は差し替え待ち) | 一部済(`e4d3a45`)。**firebaseConfig と VAPID 鍵は南野さんから受領後** |
+| 3 | 接続先を `matomete-meiho` に | 済(`e4d3a45`、値の差し込みは 2026-10-16) |
 | 4 | 配色・アイコン・透かしを名豊カラーに | 済(`df5114e`) |
 | 5 | 乗務員・管理者リストの投入準備 | 準備済み(下の「乗務員・管理者リストの投入」)。**実行はしていない** |
-| 6 | Firebase プロジェクトの設定・ルールと関数のデプロイ | 未(南野さんのコンソール作業が先) |
+| 6 | Firebase プロジェクトの設定・ルールと関数のデプロイ | コンソール設定は済(2026-10-16、南野さん)。**デプロイは未**(下の「これからの Firebase 作業」) |
 | 7 | 初期データ投入 | 未(名簿CSVと `seed.html` の準備が先) |
 | 8 | 公開(`main` へのマージ、GitHub Pages の有効化) | 未(南野さんの指示が出てから) |
 
-## Firebase の差し替え箇所(南野さんから値を受け取ったら)
+## Firebase プロジェクト `matomete-meiho`
 
-| ファイル | 箇所 | 現在 |
-|---|---|---|
-| [index.html](index.html) | `firebaseConfig`(先頭の `<script>`) | `projectId: "matomete-meiho"` だけ確定値。ほかは `__MEIHO_API_KEY__` などの仮の文字列 |
-| [index.html](index.html) | `FCM_VAPID_KEY` | 空(空のあいだはプッシュ通知の登録をスキップする) |
-| [firebase-messaging-sw.js](firebase-messaging-sw.js) | `firebaseConfig` | index.html と同じ仮の値(**index.html と必ず同じ値にする**) |
-| [.firebaserc](.firebaserc) | `default` | `matomete-meiho`(済) |
-| [test/rules/helpers.js](test/rules/helpers.js) | `PROJECT_ID` | `matomete-meiho`(済。Storage ルールのテストは `.firebaserc` と同じIDでないと失敗する) |
-| `seed.html`(リポジトリ外) | `firebaseConfig`・接続先の表示と警告 | 下の「seed.html の用意」 |
+| 項目 | 値 |
+|---|---|
+| プロジェクトID / 番号 | `matomete-meiho` / `1085038876307` |
+| ウェブアプリ | `matomete-meiho-web`(Firebase Hosting なし)、App ID `1:1085038876307:web:47acae409d801c44935f66` |
+| 認証ドメイン | `matomete-meiho.firebaseapp.com` |
+| Storage バケット | `matomete-meiho.firebasestorage.app`(asia-northeast1) |
+| Firestore | `(default)`、asia-northeast1、本番環境モードで作成 |
 
-- 仮の文字列にしたのは、空文字だと Auth の初期化で例外になり、ログイン画面も出なくなるため。差し替え後は「`__MEIHO_`」で全文検索して残りが無いことを確かめる
-- `measurementId` は不要(アプリは Analytics を使っていない)
-- `firebaseConfig` と VAPID 公開鍵は公開してよい値(アクセス制御はルールで行う)
+`measurementId` は入れていない(アプリは Analytics を使っていない)。`firebaseConfig` と VAPID 公開鍵は公開してよい値(アクセス制御はルールで行う)。
 
-### コンソールで必要な設定(A-LOGI版の立ち上げで必要だったもの)
+### コンソールで済んでいること(2026-10-16、南野さん)
 
-A-LOGI版ではコマンドから作ろうとして Firestore API 未有効で止まり、最終的に南野さんがコンソールで設定した。同じものが `matomete-meiho` にも必要。
+プロジェクト作成・Blaze プラン、Firestore(`(default)`・asia-northeast1・本番環境モード)、Storage(asia-northeast1・本番環境モード)、
+Authentication(メール/パスワード有効、承認済みドメインに `hanyama54321-cyber.github.io`)、ウェブアプリ登録、VAPID 鍵の生成。
 
-- [ ] Blaze プラン(Cloud Functions に必要)と予算アラート(A-LOGI版は $5)
-- [ ] Firestore Database(ネイティブモード、ロケーション `asia-northeast1`)
-- [ ] Storage(バケット。A-LOGI版は `matomete-alogi.firebasestorage.app` の形だった)
-- [ ] Authentication: 「メール/パスワード」を有効、承認済みドメインに `hanyama54321-cyber.github.io`(`localhost` は初期状態で入っている)
-- [ ] Cloud Messaging: ウェブプッシュ証明書(VAPID 鍵ペア)を生成 → 公開鍵を `FCM_VAPID_KEY` に
-- [ ] ウェブアプリの登録(名前の例:「安全配送まとめてアプリ 名豊興運」)→ `firebaseConfig` を受け取る
+### 接続情報の差し込み(2026-10-16)
 
-**デプロイ時に起きること(A-LOGI版の記録より)**
+`index.html`・`firebase-messaging-sw.js` の `firebaseConfig`(両方同じ値)と `FCM_VAPID_KEY` に受け取った値を入れた。`.firebaserc`・`test/rules/helpers.js` は `matomete-meiho`。
+A-LOGI の値はコードに残っていない(全文検索で確認)。
 
-- Storage ルールは Firestore を参照する(`firestore.get()`)ため、Storage のサービスアカウントに `roles/firebaserules.firestoreServiceAgent` が必要だった(A-LOGI版は南野さんの許可を得て付与)
-- Functions のデプロイ(`--dry-run` でも)で API の有効化と Google による IAM の自動付与が起き、初回は Eventarc の権限反映待ちで一部失敗した。数分おいて再デプロイで成功
-- Functions のランタイムは `nodejs22`(`firebase.json`。Node.js 20 は 2026-10-30 廃止)
-- **IAM・API の設定を失敗の解消のために自分で変えない。** Google がサービスエージェントに自動で付けるロール以外の追加・変更が起きたら止めて報告する(A-LOGI版での取り決め)
-- コマンドは必ず `--project matomete-meiho` を付ける。HI-LINE(`anzen-matomete-app`)・A-LOGI(`matomete-alogi`)に対するコマンドは参照も含めて実行しない
+**確認したこと(読み取りのみ。ログイン・書き込みはしていない)**
+
+| 確認 | 結果 |
+|---|---|
+| Auth の公開設定(API キーで `getProjectConfig`) | プロジェクト番号 `1085038876307`(`messagingSenderId` と一致)。承認済みドメインに `localhost`・`matomete-meiho.firebaseapp.com`・`matomete-meiho.web.app`・`hanyama54321-cyber.github.io` |
+| Storage バケット `matomete-meiho.firebasestorage.app` | 未ログインの一覧取得が 403(バケットはあり、ルールで拒否)。存在しないバケット名では 404 になることも確認 |
+| Firebase SDK 10.14.1(アプリと同じ版)で Storage・Firestore を呼ぶ | SDK の既定バケットが `matomete-meiho.firebasestorage.app` になり、読み・書きとも `storage/unauthorized`(ルールの拒否)。Firestore は `permission-denied`。**`.firebasestorage.app` 形式のバケット名で SDK は正しく接続できる**(A-LOGI版も同じ形式で本番稼働している) |
+| VAPID 公開鍵 | 65 バイトの P-256 公開鍵(先頭 `0x04`)として正しい形式 |
+| ルールテスト | 198件すべて pass(エミュレーターのみ) |
+
+いま公開されているルールはコンソールの「本番環境モード」の初期値(すべて拒否)なので、**ルールをデプロイするまでアプリは使えない**。
+管理者によるファイルのアップロードの実地確認は、ルールのデプロイと初期データ投入のあと(下の手順4)。
+
+## これからの Firebase 作業(順番と担当)
+
+このクラウドの作業環境には Firebase の認証情報が無い(持たせない)ため、**デプロイは南野さんの PC から行う**
+(南野さんの手で、または PC の Claude Code で。A-LOGI版は PC の Claude Code が `firebase-tools` で行った)。
+すべてのコマンドに `--project matomete-meiho` を付け、実行前に宛先のプロジェクトIDを表示して確認する。HI-LINE(`anzen-matomete-app`)・A-LOGI(`matomete-alogi`)へのコマンドは参照も含めて実行しない。
+
+| 順 | 担当 | 作業 | 備考 |
+|---|---|---|---|
+| 0 | 南野さん(コンソール) | 予算アラートを設定(A-LOGI版は $5) | Blaze は従量課金のため。**未設定なら先に** |
+| 1 | PC | 作業フォルダに `matomete-meiho` を取得し、作業ブランチを checkout → `npm ci` → `npx firebase-tools login:list` で `hanyama54321@gmail.com` を確認 | `.firebaserc` は `matomete-meiho` |
+| 2 | PC | ルールテスト: `npx firebase-tools emulators:exec --only firestore,storage --project matomete-meiho "node --test test/rules/*.test.js"` → 198件 pass | Java が必要 |
+| 3 | PC | ルール・インデックス・Storage ルールを**ドライラン** → 本実行(下の「3. ルール」) | **IAM の追加が1件ある**(南野さんの了承が必要) |
+| 4 | PC | Cloud Functions を**ドライラン** → 本実行(下の「4. Functions」) | API の有効化と IAM の自動付与が起きる。初回は一部失敗することがある |
+| 5 | 南野さん + PC | 初期データ投入(「乗務員・管理者リストの投入」) | `seed.html` と名簿CSVの用意が先。サインアップのオン → 投入 → オフ |
+| 6 | 南野さん(PC のブラウザ) | 管理者で手順書に PDF を1つアップロードして消す | Storage ルールと手順3の IAM の実地確認 |
+| 7 | 南野さんの指示で | `main` へのマージと GitHub Pages の有効化 | README のリリース手順 |
+
+### 3. ルール・インデックス・Storage ルール
+
+```
+npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage --project matomete-meiho --dry-run
+npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage --project matomete-meiho
+```
+
+- **Storage ルールは Firestore を参照する**(`firestore.get()` で `users/{コード}.role` を見て管理者か判定)。このため Storage のサービスアカウントに
+  **`roles/firebaserules.firestoreServiceAgent`** が必要。付与先は `service-1085038876307@gcp-sa-firebasestorage.iam.gserviceaccount.com`
+  - 本実行を**対話モード(`--non-interactive` を付けない)**で行うと、firebase-tools が「この権限を付けるか」を聞いてくる。南野さんが了承するなら Yes
+  - A-LOGI版は非対話で実行したため質問が出ず、あとから同じ処理(`addServiceAccountToRoles`)で付与した(A-LOGI版 HANDOFF #15)
+  - これが無いと、管理者でも手順書のファイルをアップロード・削除できない(ルールの評価で Firestore を読めず拒否される)
+- インデックスは `reports` の複合インデックス2件。作成に数分かかる(コンソールの Firestore →「インデックス」で「有効」になるまで待つ)
+
+### 4. Cloud Functions(8関数、`asia-northeast1`、`nodejs22`、第2世代)
+
+```
+(cd functions && npm ci)
+npx firebase-tools deploy --only functions --project matomete-meiho --dry-run
+npx firebase-tools deploy --only functions --project matomete-meiho
+npx firebase-tools functions:list --project matomete-meiho
+```
+
+関数: Firestore トリガー4つ(`onAnnouncementNotify`・`onReportCreated`・`onReportReplyNotify`・`onManualCreated`)、呼び出し型3つ(`sendUnreadReminder`・`subscribeToReport`・`estimateNotifyAudience`)、
+定期実行1つ(`cleanupStaleTokens`、毎週日曜 3:00)。
+
+**A-LOGI版で起きたこと(同じことが起きる見込み)**
+
+- **ドライランでも API が有効になる**(cloudfunctions・cloudbuild・artifactregistry・firebaseextensions・cloudscheduler・run・eventarc。pubsub・storage は有効済みだった)
+- API の有効化に伴い、**Google がサービス用のロールを自動で付ける**。A-LOGI版では次のものが増えた(プロジェクト番号は名豊では `1085038876307` に読み替え)
+  - `roles/cloudbuild.builds.builder`(Cloud Build のサービスアカウント)
+  - `roles/cloudbuild.serviceAgent`・`roles/cloudfunctions.standardServiceAgent`・`roles/cloudscheduler.serviceAgent`・`roles/containerregistry.ServiceAgent`・
+    `roles/firebasemods.serviceAgent`・`roles/run.serviceAgent`・`roles/artifactregistry.serviceAgent`・`roles/eventarc.serviceAgent`・`roles/pubsub.serviceAgent`(各サービスのサービスエージェント)
+  - `roles/editor`(既定の Compute のサービスアカウント・`cloudservices`・`<プロジェクト>@appspot`)
+- **本実行で firebase-tools が質問なしに付けるもの**(Firestore トリガーと定期実行に必要)
+  - `roles/iam.serviceAccountTokenCreator` ← `service-1085038876307@gcp-sa-pubsub.iam.gserviceaccount.com`
+  - `roles/run.invoker`・`roles/eventarc.eventReceiver` ← `1085038876307-compute@developer.gserviceaccount.com`
+- **初回の本実行は一部失敗した**: Firestore トリガーは「Eventarc の権限がまだ反映されていない(数分後に再実行)」、ほかの3つは Cloud Build の「予期しないエラー」。
+  **5分ほど待って同じコマンドで再デプロイ**したら8関数とも成功した
+- 初回はコンテナイメージの保存日数を聞かれる(A-LOGI版は 1日)。非対話で実行する場合は `--force` が必要
+
+**IAM の取り決め(A-LOGI版で南野さんが決めたもの。名豊でも同じでよいかは南野さんの判断)**
+
+- IAM や API の設定を、失敗の解消のために自分で追加・変更しない(必要なら案を報告する)
+- 上の一覧にあるもの(Google の自動付与と firebase-tools の3件)以外の IAM の追加・変更が起きたら止めて報告する
+- 確かめ方: 手順4の前後で IAM ポリシーを保存して比べる(`gcloud projects get-iam-policy matomete-meiho --format=json`、または
+  Google Cloud コンソールの「IAM と管理」→「IAM」。A-LOGI版は PC の Claude Code がログイン済みの firebase-tools の権限で読み取った)
+- 再デプロイは2回まで。それでも失敗したら止めて報告する
 
 ## 配色(ステップ4)
 
