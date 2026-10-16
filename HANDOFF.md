@@ -28,7 +28,7 @@
 | 新着マーク(ベル・タブ) | 黄 `#FFD54F`・濃色リング | レッド `#D6333F`・白リング(HI-LINE版と同じ形) |
 | 周知の未読ドット | `--navy`(ダークワイン) | `--navy`(ネイビー `#24366B`) |
 | 版番号 | `A-0.1.3` | `M-0.1.0`(更新履歴は M-0.1.0 の1件のみ) |
-| 乗務員コードの入力例 | 「例: 40001」 | 「例: 12345」(**名豊興運のコード範囲が決まったら差し替える**) |
+| 乗務員コード | 40000番台(入力例「例: 40001」) | 30000番台(入力例「例: 30003」)。名簿は `30000`〜`30101` の26名、`30000` は研修用 |
 | 背景の透かし | 「A.」 | 「M.」 |
 | 名簿CSVの誤コミット防止 | `seed.html` のみ除外 | `seed.html` と `*.csv` を除外 |
 
@@ -46,10 +46,25 @@
 | 2 | 名称・配信パス・保存キー・版表記の差し替え | 済(`77f806d`) |
 | 3 | 接続先を `matomete-meiho` に | 済(`e4d3a45`、値の差し込みは 2026-10-16) |
 | 4 | 配色・アイコン・透かしを名豊カラーに | 済(`df5114e`) |
-| 5 | 乗務員・管理者リストの投入準備 | 準備済み(下の「乗務員・管理者リストの投入」)。**実行はしていない** |
-| 6 | Firebase プロジェクトの設定・ルールと関数のデプロイ | コンソール設定は済(2026-10-16、南野さん)。**デプロイは未**(下の「これからの Firebase 作業」) |
-| 7 | 初期データ投入 | 未(名簿CSVと `seed.html` の準備が先) |
+| 5 | 乗務員・管理者リストの投入準備 | 済。`seed.html`(名豊興運用)と名簿CSV(26行)は南野さんが用意済み(リポジトリ外) |
+| 6 | Firebase プロジェクトの設定・ルールと関数のデプロイ | コンソール設定は済(2026-10-16、南野さん)。**デプロイは未**(下の「PC でのデプロイと初期投入の手順」の手順0〜3) |
+| 7 | 初期データ投入 | 未(同じく手順4) |
 | 8 | 公開(`main` へのマージ、GitHub Pages の有効化) | 未(南野さんの指示が出てから) |
+
+### 決まったこと(2026-10-16、南野さん)
+
+- **乗務員コードは 30000番台**。名簿は `30000`〜`30101` の26名(`30000` は研修用「名豊興運 研修」)。入力例を「例: 30003」にした
+- **初期投入で作る管理者はメンテ用の `AAAAA`・`BBBBB`・`CCCCC` の3件だけ**。乗務員への管理者権限は、運用開始後に南野さんがアプリの「乗務員マスタ」から付ける(初期投入の作業には含めない)。名簿CSVの「権限」列は全員「乗務員」
+- **`seed.html`** は南野さんが名豊興運用に書き換え済み(`firebaseConfig` を `matomete-meiho` に、接続先の表示と警告を「名豊興運」に、⑤⑧の説明を名豊の構成に)。リポジトリ外で保管し、Claude Code は書き換えない
+- **名簿CSV** は用意済み(UTF-8・26行・`parseDriversCsv` で不正行0件を南野さんが確認)。リポジトリには入れない
+- **IAM**: `roles/firebaserules.firestoreServiceAgent` を `service-1085038876307@gcp-sa-firebasestorage.iam.gserviceaccount.com` に付けることを了承(対話モードで聞かれたら Yes)。
+  Functions のデプロイで自動で付く権限も了承。取り決めは A-LOGI版と同じ(失敗を直すために権限や API の設定を自分で変えない/一覧に無い権限が増えたら止めて報告/再デプロイは2回まで)。コンテナイメージの保存日数は1日
+
+### 保留中(南野さんの返事待ち)
+
+- 初期の所属班、研修用 `30000` の扱い
+- 表示名(「安全配送まとめてアプリ 名豊興運」/ 短縮「まとめて名豊」)、A-LOGI 由来の設定(下の一覧)、ブランチ運用
+- 【要確認】予算アラートの設定状況(2026-10-16 の連絡では未記入)
 
 ## Firebase プロジェクト `matomete-meiho`
 
@@ -86,71 +101,181 @@ A-LOGI の値はコードに残っていない(全文検索で確認)。
 いま公開されているルールはコンソールの「本番環境モード」の初期値(すべて拒否)なので、**ルールをデプロイするまでアプリは使えない**。
 管理者によるファイルのアップロードの実地確認は、ルールのデプロイと初期データ投入のあと(下の手順4)。
 
-## これからの Firebase 作業(順番と担当)
+## PC でのデプロイと初期投入の手順(そのまま使える版)
 
-このクラウドの作業環境には Firebase の認証情報が無い(持たせない)ため、**デプロイは南野さんの PC から行う**
-(南野さんの手で、または PC の Claude Code で。A-LOGI版は PC の Claude Code が `firebase-tools` で行った)。
-すべてのコマンドに `--project matomete-meiho` を付け、実行前に宛先のプロジェクトIDを表示して確認する。HI-LINE(`anzen-matomete-app`)・A-LOGI(`matomete-alogi`)へのコマンドは参照も含めて実行しない。
+このクラウドの作業環境には Firebase の認証情報が無い(持たせない)ため、**デプロイと投入は南野さんの PC で行う**(南野さんの手で、または PC の Claude Code で)。
+コマンドは Git Bash で、作業フォルダ(リポジトリのルート)から実行する。
 
-| 順 | 担当 | 作業 | 備考 |
-|---|---|---|---|
-| 0 | 南野さん(コンソール) | 予算アラートを設定(A-LOGI版は $5) | Blaze は従量課金のため。**未設定なら先に** |
-| 1 | PC | 作業フォルダに `matomete-meiho` を取得し、作業ブランチを checkout → `npm ci` → `npx firebase-tools login:list` で `hanyama54321@gmail.com` を確認 | `.firebaserc` は `matomete-meiho` |
-| 2 | PC | ルールテスト: `npx firebase-tools emulators:exec --only firestore,storage --project matomete-meiho "node --test test/rules/*.test.js"` → 198件 pass | Java が必要 |
-| 3 | PC | ルール・インデックス・Storage ルールを**ドライラン** → 本実行(下の「3. ルール」) | **IAM の追加が1件ある**(南野さんの了承が必要) |
-| 4 | PC | Cloud Functions を**ドライラン** → 本実行(下の「4. Functions」) | API の有効化と IAM の自動付与が起きる。初回は一部失敗することがある |
-| 5 | 南野さん + PC | 初期データ投入(「乗務員・管理者リストの投入」) | `seed.html` と名簿CSVの用意が先。サインアップのオン → 投入 → オフ |
-| 6 | 南野さん(PC のブラウザ) | 管理者で手順書に PDF を1つアップロードして消す | Storage ルールと手順3の IAM の実地確認 |
-| 7 | 南野さんの指示で | `main` へのマージと GitHub Pages の有効化 | README のリリース手順 |
+**守ること**
 
-### 3. ルール・インデックス・Storage ルール
+- すべての `firebase-tools` コマンドに `--project matomete-meiho` を付ける(`firebase use` の既定値に頼らない)。出力の `Deploying to 'matomete-meiho'...` を見て宛先を確かめる
+- HI-LINE(`anzen-matomete-app`)・A-LOGI(`matomete-alogi`)に対するコマンドは参照も含めて実行しない(`projects:list` も使わない)
+- **IAM の取り決め(2026-10-16 南野さん決定。A-LOGI版と同じ)**: 失敗を直すために権限や機能(API)の設定を自分で変えない/下の「了承済みの権限」に無い権限が増えたら止めて報告する/再デプロイは2回まで
+- サービスアカウントの鍵ファイルは作らない・保存しない。`seed.html`・名簿CSV・IAM の控え(JSON)はコミットしない
 
+**了承済みの権限(2026-10-16)**
+
+| 付く場面 | 権限 ← 付与先 |
+|---|---|
+| 手順2(Storage ルール)で対話モードの質問に Yes | `roles/firebaserules.firestoreServiceAgent` ← `service-1085038876307@gcp-sa-firebasestorage.iam.gserviceaccount.com` |
+| 手順3(Functions)で firebase-tools が質問なしに付ける | `roles/iam.serviceAccountTokenCreator` ← `service-1085038876307@gcp-sa-pubsub.iam.gserviceaccount.com`、`roles/run.invoker`・`roles/eventarc.eventReceiver` ← `1085038876307-compute@developer.gserviceaccount.com` |
+| 手順3で API の有効化に伴い Google が自動で付ける | `roles/cloudbuild.builds.builder`(`1085038876307@cloudbuild.gserviceaccount.com`)、各サービスのサービスエージェントへの `roles/cloudbuild.serviceAgent`・`roles/cloudfunctions.standardServiceAgent`・`roles/cloudscheduler.serviceAgent`・`roles/containerregistry.ServiceAgent`・`roles/firebasemods.serviceAgent`・`roles/run.serviceAgent`・`roles/artifactregistry.serviceAgent`・`roles/eventarc.serviceAgent`・`roles/pubsub.serviceAgent`、`roles/editor`(既定の Compute のサービスアカウント・`1085038876307@cloudservices.gserviceaccount.com`・`matomete-meiho@appspot.gserviceaccount.com`) |
+
+(手順3の一覧は A-LOGI版で実際に増えたもの。プロジェクト番号を名豊の `1085038876307` に読み替えている)
+
+### 手順0. 始める前に
+
+- [ ] 【要確認】**予算アラート**が設定されているか(Blaze は従量課金。A-LOGI版は $5)。未設定なら Google Cloud コンソール →「お支払い」→「予算とアラート」で先に作る
+- [ ] 作業フォルダを用意する(A-LOGI版の `matomete-alogi` と同じ階層を想定)。`seed.html` と名簿CSVがすでに `matomete-meiho` フォルダにある場合は、いったん別の場所へ移してから clone し、clone のあとで戻す(空でないフォルダには clone できない)
+  ```bash
+  git clone https://github.com/hanyama54321-cyber/matomete-meiho.git
+  cd matomete-meiho
+  git checkout claude/gracious-goldberg-qfy7z4
+  git log --oneline -1                 # 最新コミットであること
+  npm ci
+  export PATH="/c/Program Files/Eclipse Adoptium/jre-21.0.11.10-hotspot/bin:$PATH"
+  npx firebase-tools --version         # 15.23.0
+  npx firebase-tools login:list        # Logged in as hanyama54321@gmail.com
+  cat .firebaserc                      # "default": "matomete-meiho"
+  ```
+- [ ] `seed.html` と `名豊興運_乗務員コード一覧.csv` をこのフォルダに置いたあと、`git status --short` が空であること(どちらも `.gitignore` で除外されている)。
+      念のため `git check-ignore -v seed.html 名豊興運_乗務員コード一覧.csv` で2つとも表示されること
+
+### 手順1. ルールテスト(エミュレーターのみ。本番には接続しない)
+
+```bash
+npx firebase-tools emulators:exec --only firestore,storage --project matomete-meiho "node --test test/rules/*.test.js"
 ```
+
+- [ ] 末尾が `# tests 198` / `# pass 198` / `# fail 0`
+
+### 手順2. Firestore ルール・インデックス・Storage ルール
+
+```bash
 npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage --project matomete-meiho --dry-run
+```
+
+- [ ] `Deploying to 'matomete-meiho'...`、`firestore.rules` と `storage.rules` が `compiled successfully`、最後に `Dry run complete!`
+- ドライランでは権限の質問は出ない(firebase-tools 15.23.0 のコードで確認。質問はルールを実際にアップロードするときだけ)
+
+```bash
 npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage --project matomete-meiho
 ```
 
-- **Storage ルールは Firestore を参照する**(`firestore.get()` で `users/{コード}.role` を見て管理者か判定)。このため Storage のサービスアカウントに
-  **`roles/firebaserules.firestoreServiceAgent`** が必要。付与先は `service-1085038876307@gcp-sa-firebasestorage.iam.gserviceaccount.com`
-  - 本実行を**対話モード(`--non-interactive` を付けない)**で行うと、firebase-tools が「この権限を付けるか」を聞いてくる。南野さんが了承するなら Yes
-  - A-LOGI版は非対話で実行したため質問が出ず、あとから同じ処理(`addServiceAccountToRoles`)で付与した(A-LOGI版 HANDOFF #15)
-  - これが無いと、管理者でも手順書のファイルをアップロード・削除できない(ルールの評価で Firestore を読めず拒否される)
-- インデックスは `reports` の複合インデックス2件。作成に数分かかる(コンソールの Firestore →「インデックス」で「有効」になるまで待つ)
+**`--non-interactive` も `--force` も付けない**(付けると権限の質問が出ず、付与されない)。
 
-### 4. Cloud Functions(8関数、`asia-northeast1`、`nodejs22`、第2世代)
+- [ ] 途中で `Cloud Storage for Firebase needs an IAM Role to use cross-service rules. Grant the new role? (Y/n)` と聞かれる → **Y**(了承済み)
+- [ ] `updated service account for cross-service rules...` と表示され、最後に `Deploy complete!`
+- 次の場合は**止めて報告**する(自分で権限を足さない)
+  - `[rules] Error checking or updating Cloud Storage for Firebase service account permissions.` という警告が出た
+  - 質問が出ないまま終わった(Storage ルールが一度アップロード済みだと「already up to date」で質問ごと飛ばされ、もう一度実行しても出ない。A-LOGI版はこの状態から、同じ処理で権限1件を付けた)
+- [ ] コンソールの Firestore →「インデックス」で `reports` の複合インデックス2件が「構築中」→「有効」になる(数分)
+- [ ] コンソールの Firestore・Storage の「ルール」タブが、リポジトリの `firestore.rules`・`storage.rules` と同じ内容
+- [ ] Google Cloud コンソール →「IAM と管理」→「IAM」で **「Google 提供のロール付与を含める」にチェック**を入れ、
+      `service-1085038876307@gcp-sa-firebasestorage.iam.gserviceaccount.com` に「Firebase Rules Firestore Service Agent」が付いている
 
-```
+### 手順3. Cloud Functions(8関数、`asia-northeast1`、`nodejs22`、第2世代)
+
+**(1) 実行前の IAM を控える**(あとで比べるため。控えはリポジトリの外に置く)
+
+- `gcloud` がある場合: `gcloud projects get-iam-policy matomete-meiho --format=json > ../meiho-iam-before.json`
+- 無い場合: 上の IAM 画面(「Google 提供のロール付与を含める」にチェック)を画面ごと保存する。A-LOGI版は PC の Claude Code がログイン済みの firebase-tools の権限で読み取った
+
+**(2) ドライラン**
+
+```bash
 (cd functions && npm ci)
 npx firebase-tools deploy --only functions --project matomete-meiho --dry-run
+```
+
+- [ ] `Dry run complete!`
+- **ドライランでも API が有効になり、Google の自動付与で権限が増える**(cloudfunctions・cloudbuild・artifactregistry・firebaseextensions・cloudscheduler・run・eventarc など。上の「了承済みの権限」の3段目)
+
+**(3) 本実行**
+
+```bash
 npx firebase-tools deploy --only functions --project matomete-meiho
+```
+
+- [ ] `How many days do you want to keep container images before they're deleted? (1)` → **1**(了承済み。既定値なので Enter でよい)
+- 権限3件(了承済みの2段目)は質問なしに付く
+- [ ] 最後に `Deploy complete!`。**一部失敗した場合**(A-LOGI版の初回は、Firestore トリガーが「Eventarc の権限がまだ反映されていない」、ほかが Cloud Build の「予期しないエラー」で失敗した):
+      **5分ほど待って同じコマンドをもう一度**。再デプロイは2回まで。成功済みの関数は変更なしで飛ばされる。2回でも失敗したら止めて報告する(権限・API を変えて直そうとしない)
+
+**(4) 確認**
+
+```bash
 npx firebase-tools functions:list --project matomete-meiho
 ```
 
-関数: Firestore トリガー4つ(`onAnnouncementNotify`・`onReportCreated`・`onReportReplyNotify`・`onManualCreated`)、呼び出し型3つ(`sendUnreadReminder`・`subscribeToReport`・`estimateNotifyAudience`)、
-定期実行1つ(`cleanupStaleTokens`、毎週日曜 3:00)。
+- [ ] 8行すべて `v2`・`asia-northeast1`・`nodejs22`
+  - Firestore トリガー: `onAnnouncementNotify`(written)・`onReportCreated`(created)・`onManualCreated`(created)・`onReportReplyNotify`(updated)
+  - 呼び出し型: `sendUnreadReminder`・`subscribeToReport`・`estimateNotifyAudience`
+  - 定期実行: `cleanupStaleTokens`(毎週日曜 3:00)
+- [ ] 実行後の IAM を(1)と同じ方法で控え(`../meiho-iam-after.json`)、増えたものが「了承済みの権限」の一覧の中だけであること。**一覧に無いものがあれば止めて報告**(元に戻す操作もしない)
 
-**A-LOGI版で起きたこと(同じことが起きる見込み)**
+### 手順4. 初期データ投入(`seed.html`。南野さんが名豊興運用に書き換え済み、リポジトリ外で保管)
 
-- **ドライランでも API が有効になる**(cloudfunctions・cloudbuild・artifactregistry・firebaseextensions・cloudscheduler・run・eventarc。pubsub・storage は有効済みだった)
-- API の有効化に伴い、**Google がサービス用のロールを自動で付ける**。A-LOGI版では次のものが増えた(プロジェクト番号は名豊では `1085038876307` に読み替え)
-  - `roles/cloudbuild.builds.builder`(Cloud Build のサービスアカウント)
-  - `roles/cloudbuild.serviceAgent`・`roles/cloudfunctions.standardServiceAgent`・`roles/cloudscheduler.serviceAgent`・`roles/containerregistry.ServiceAgent`・
-    `roles/firebasemods.serviceAgent`・`roles/run.serviceAgent`・`roles/artifactregistry.serviceAgent`・`roles/eventarc.serviceAgent`・`roles/pubsub.serviceAgent`(各サービスのサービスエージェント)
-  - `roles/editor`(既定の Compute のサービスアカウント・`cloudservices`・`<プロジェクト>@appspot`)
-- **本実行で firebase-tools が質問なしに付けるもの**(Firestore トリガーと定期実行に必要)
-  - `roles/iam.serviceAccountTokenCreator` ← `service-1085038876307@gcp-sa-pubsub.iam.gserviceaccount.com`
-  - `roles/run.invoker`・`roles/eventarc.eventReceiver` ← `1085038876307-compute@developer.gserviceaccount.com`
-- **初回の本実行は一部失敗した**: Firestore トリガーは「Eventarc の権限がまだ反映されていない(数分後に再実行)」、ほかの3つは Cloud Build の「予期しないエラー」。
-  **5分ほど待って同じコマンドで再デプロイ**したら8関数とも成功した
-- 初回はコンテナイメージの保存日数を聞かれる(A-LOGI版は 1日)。非対話で実行する場合は `--force` が必要
+> この手順では本番の Firebase に書き込む。ログインの利用記録(`sessions`)は削除できない。
 
-**IAM の取り決め(A-LOGI版で南野さんが決めたもの。名豊でも同じでよいかは南野さんの判断)**
+**(1) 準備**
 
-- IAM や API の設定を、失敗の解消のために自分で追加・変更しない(必要なら案を報告する)
-- 上の一覧にあるもの(Google の自動付与と firebase-tools の3件)以外の IAM の追加・変更が起きたら止めて報告する
-- 確かめ方: 手順4の前後で IAM ポリシーを保存して比べる(`gcloud projects get-iam-policy matomete-meiho --format=json`、または
-  Google Cloud コンソールの「IAM と管理」→「IAM」。A-LOGI版は PC の Claude Code がログイン済みの firebase-tools の権限で読み取った)
-- 再デプロイは2回まで。それでも失敗したら止めて報告する
+- [ ] Firebase コンソール → Authentication →「設定」→「ユーザーアクション」→「作成(サインアップ)を有効にする」を**オン**
+- [ ] `python -m http.server 8000`(作業フォルダで実行)→ ブラウザで `http://localhost:8000/seed.html`
+- [ ] 画面上部が「名豊興運」「matomete-meiho」の表示で、警告が出ていない。開発者ツールのコンソールで `firebase.app().options.projectId` が `matomete-meiho`
+
+**(2) 管理者3件(メンテ用 `AAAAA`・`BBBBB`・`CCCCC` のみ。乗務員への管理者権限は初期投入では付けない)**
+
+1. **ログインする前に ①** → ログに「Auth作成」が3件(`users` の作成は拒否されるのが正常。ルール上、管理者しか `users` を作れないため)
+2. **最初の `users/AAAAA` だけをルールの外で作る**。どちらで行うかは南野さんが選ぶ
+   - 案A: PC の Claude Code が、ログイン済みの firebase-tools の権限で Firestore に1件書き込む(A-LOGI版はこちら)
+   - 案B: Firebase コンソール → Firestore →「コレクションを開始」→ コレクションID `users` → ドキュメントID `AAAAA` → フィールド
+     `name`(string)`管理者A`、`role`(string)`admin`、`team`(null)、`passwordChanged`(boolean)`false`
+3. `seed.html` で `AAAAA` / パスワード `AAAAA` でログイン →「管理者としてログイン中: AAAAA」→ **① をもう一度** → `users` 3件(`AAAAA` は同じ内容で上書き)
+
+**(3) 班・チャンネル・KYT・手順書サンプル**(管理者でログインした状態で。2回押しても壊れない)
+
+- [ ] ③ 班 → 2件(昼班・夜班)
+- [ ] ⑤ チャンネル → 4件(全体連絡・昼班・夜班・管理者)
+- [ ] ⑦ KYT → 7件
+- [ ] ⑥ 手順書サンプル → 5件(任意。見た目確認用で実ファイルは無い。不要なら押さない)
+- 周知のサンプルは投入しない
+
+**(4) 乗務員(名簿CSV)**
+
+- [ ] ⑧ で `名豊興運_乗務員コード一覧.csv` を選び「ドライラン」
+- [ ] **新規26件(`30000`〜`30101`。研修用 `30000` を含む)・更新0件・除外0件(CSV に `AAAAA`〜`CCCCC` の行を入れていれば3件)・不正行0件**。表の氏名が文字化けしていない
+      (研修用 `30000` の扱いを決めて CSV から外した場合は新規25件)
+- [ ] 一致したら「承認して本実行」。**違っていたら本実行しない**
+- 作られるもの: Auth(初期パスワード=乗務員コード)と `users/{コード}`(`role: driver`、`team: null`、`passwordChanged: false`)
+
+**(5) 通知設定を乗務員にも表示する**
+
+- [ ] Firestore →「コレクションを開始」→ コレクションID `config` → ドキュメントID `notifications` → フィールド `openToAllUsers`(boolean)`true`
+
+**(6) 後片付け**
+
+- [ ] Authentication のサインアップを**オフ**に戻し、画面を再読み込みしてオフのままであることを確かめる(A-LOGI版では戻し忘れがあった)
+- [ ] `python -m http.server` を止める(Ctrl+C)
+- [ ] `git status --short` が空(`seed.html`・CSV がコミット対象に出ていない)
+
+**(7) 投入後の確認**(ローカルの `index.html` からでも本番につながる。`http://localhost:8000/index.html`)
+
+- [ ] `AAAAA` でログインでき、版表記が `Ver.M-0.1.0`
+- [ ] 乗務員マスタが26名(`AAAAA`〜`CCCCC` は出ない)。班編成管理に昼班・夜班、チャットのチャンネルが4つ。KYT 7件(手順書サンプルを入れた場合は5件)、周知0件
+- [ ] 管理者で手順書に PDF を1つアップロードでき、削除できる(手順2の権限の実地確認)
+- [ ] 乗務員コード(例: `30003`)と初期パスワード(=コード)でログインでき、ユーザーメニューに「通知設定」が出る
+- [ ] 終わったら Claude Code に連絡(件数・班・チャンネル・設定の読み取り確認を行う)
+
+**初期投入でやらないこと(2026-10-16 決定)**
+
+- 乗務員への管理者権限の付与: 運用開始後に南野さんがアプリの「乗務員マスタ」から行う(下の「管理者権限の付与」に影響の一覧)
+- 初期の所属班: 保留中。決まるまでは全員 `team: null` のままで、乗務員が初回ログイン後にプロフィールで自分の班を選ぶ(選ぶまで保存できない・班チャンネルに投稿できない)
+
+### 手順5. 公開(ブランチ運用が決まってから)
+
+README のリリース手順(`main` へ `--no-ff` でマージ → タグ `M-0.1.0` → GitHub Pages を `main` / root で有効化 → 公開URLで版表記と接続先を確認)。
+承認済みドメイン `hanyama54321-cyber.github.io` は設定済み。
 
 ## 配色(ステップ4)
 
@@ -192,11 +317,11 @@ A-LOGI版 A-0.1.3 の設定をそのまま引き継いでいる。次のもの�
 | 7 | 「このアプリについて」の「開発・運用: 名古屋共配センター」「著作権者: 南野」 | `openAppInfo()` | A-LOGI でもそのまま残した |
 | 8 | 一般の乗務員にも「通知設定」を出す(`config/notifications` の `openToAllUsers: true`) | Firestore(手作業) | — |
 | 9 | 管理者3件・管理者にした乗務員のパスワードは初期値(=コード)のまま運用 | 運用 | 南野さんの判断(2026-10-14・15) |
-| 10 | 乗務員の一部に `role: admin` を付け、管理者画面を使わせる | 運用 | 南野さんの指示(2026-10-15)。影響は下の「管理者権限の付与」 |
+| 10 | 乗務員の一部に `role: admin` を付け、管理者画面を使わせる | 運用 | 南野さんの指示(2026-10-15)。**名豊興運版では運用開始後に南野さんが画面から付ける(2026-10-16 決定)**。影響は下の「管理者権限の付与」 |
 | 11 | 色分け用の琥珀色 `--amber` | `index.html` | 赤基調で `--primary` と `--danger` が見分けにくかったため。青基調では必須ではないが、色の意味を変えないため残した |
 | 12 | メール通知を組み込まない | — | A-LOGI の決定 |
 
-## 乗務員・管理者リストの投入(準備まで。実行はしていない)
+## 乗務員・管理者リストの投入(仕組み。実行の手順は上の「手順4」)
 
 ### 使う仕組み(A-LOGI版と同じ)
 
@@ -205,26 +330,18 @@ A-LOGI版 A-0.1.3 の設定をそのまま引き継いでいる。次のもの�
 | 管理者 `AAAAA`・`BBBBB`・`CCCCC` の Auth アカウントと `users` | `seed.html` の ① | 最初の `users/AAAAA` だけはルールの外で作る必要がある(下の手順2) |
 | 班2件・チャンネル4件・KYT 7件・手順書サンプル5件 | `seed-teams.js`・`seed-channels.js`・`seed-kyt.js`・`seed-manuals.js`(`seed.html` の ③⑤⑦⑥) | 固定のドキュメントIDで上書きするので2回押しても壊れない |
 | 乗務員マスタの CSV 取り込み + Auth アカウントの一括作成 | `seed-drivers-csv.js`(`seed.html` の ⑧。ドライラン → 本実行) | 新規の乗務員は Auth(初期パスワード=乗務員コード)と `users/{コード}`(`role: driver`、`team: null`)が作られる。既存は氏名だけ更新、CSV に無いコードには触らない。`AAAAA`/`BBBBB`/`CCCCC` は常に除外 |
-| 管理者権限の付与・初期の所属班 | アプリの「乗務員マスタ」(管理者でログイン)で1人ずつ役割(`driver`/`admin`)と所属班を変える。または、南野さんの了承のうえで Claude Code が所有者の権限で一括変更する(A-LOGI版はこちらで行った) | 乗務員マスタからの「新規登録」は Auth アカウントを作らないので、乗務員の追加は CSV で行う |
+| 管理者権限の付与・所属班の変更(初期投入の後) | アプリの「乗務員マスタ」(管理者でログイン)で1人ずつ役割(`driver`/`admin`)と所属班を変える。**管理者権限は運用開始後に南野さんがこの画面から付ける**(2026-10-16 決定)。A-LOGI版では Claude Code が所有者の権限で一括変更した | 乗務員マスタからの「新規登録」は Auth アカウントを作らないので、乗務員の追加は CSV で行う |
 
 `seed-*.js` はこのリポジトリで A-LOGI版と同じもの(乗務員コード5桁・初期パスワード=コード・`AUTH_EMAIL_DOMAIN`・`AUTH_PW_SUFFIX` も同じ)。
 `seed-drivers-csv.js` の読み取り処理は、下の形式の架空データで「余分な列は無視される」「`AAAAA` の行は除外対象になる」「引用符付き・4桁は不正行になる」ことを確認した(2026-10-15)。
 
-### seed.html の用意(【要確認】南野さんの作業が必要)
+### seed.html(南野さんが用意済み。リポジトリ外)
 
-`seed.html` は `.gitignore` で除外していて、**A-LOGI版のリポジトリにも、このリポジトリにも入っていない**(南野さんの PC の作業フォルダ `matomete-alogi` にだけある)。
-名豊興運版では、そのコピーを PC の `matomete-meiho` の作業フォルダに置き、次を書き換える(A-LOGI版で HI-LINE版から作ったときと同じ箇所)。
+`seed.html` は `.gitignore` で除外していて、A-LOGI版のリポジトリにも、このリポジトリにも入っていない。
+名豊興運用は南野さんが A-LOGI版のものから書き換え済み(2026-10-16): `firebaseConfig` を `matomete-meiho` に、画面上部の接続先の表示と警告を「名豊興運」に、⑤⑧の説明を名豊の構成に。
+リポジトリ外(PC の作業フォルダ)で保管し、Claude Code は書き換えない。カードの番号と動きは A-LOGI版と同じ(① は管理者3件だけ、②④⑨ は無い、⑤ は管理者でログインしたら押せる)。
 
-| 箇所 | 変更 |
-|---|---|
-| `firebaseConfig` | `matomete-meiho` の値に(`index.html` と同じ)。A-LOGI の値(`matomete-alogi`・`252853368767`)が残っていないことを全文検索で確認 |
-| 画面上部の接続先の表示と警告 | `matomete-alogi(A-LOGI)` → `matomete-meiho(名豊興運)`。警告の条件も `matomete-meiho` 以外にする |
-| ⑧ の説明文 | 名簿の見出しを下の形式に |
-| それ以外(① は管理者3件だけ・②④⑨ は削除済み・⑤ は管理者でログインしたら押せる) | A-LOGI版のまま使う |
-
-ファイルを Claude Code に渡してもらえれば書き換えを行う(コミットはしない)。
-
-### 名簿CSVの形式(南野さんに用意してもらうもの)
+### 名簿CSVの形式(南野さんが用意済み。2026-10-16)
 
 - **ファイル名**: `名豊興運_乗務員コード一覧.csv`
 - **置き場所**: 南野さんの PC の作業フォルダ `matomete-meiho`(`seed.html` と同じ場所)。**リポジトリにはコミットしない**(public のため。`*.csv` は `.gitignore` で除外済み)
@@ -232,12 +349,12 @@ A-LOGI版 A-0.1.3 の設定をそのまま引き継いでいる。次のもの�
 
   ```
   乗務員コード,氏名,権限,所属班
-  12345,名豊 太郎,乗務員,昼班
-  12346,名豊 花子,管理者,夜班
+  30001,名豊 太郎,乗務員,
+  30002,名豊 花子,乗務員,
   ```
 
   - `乗務員コード`・`氏名`: 取り込みに使う列(必須)
-  - `権限`(`乗務員` / `管理者`)・`所属班`(`昼班` / `夜班` / 空欄): 取り込み処理は読まない。**管理者権限の付与と初期の所属班を決めるための列**(取り込みのあとで、乗務員マスタまたは一括変更で反映する)
+  - `権限`・`所属班`: 取り込み処理は読まない(控えの列)。**`権限` は全員「乗務員」**(管理者権限は運用開始後に画面から付けるため)。`所属班` は保留中
   - `AAAAA`・`BBBBB`・`CCCCC` は入れなくてよい(入れても除外される)
 - **チェック項目**(A-LOGI版の投入で確認したもの)
   - [ ] コードはすべて半角英数字5桁。重複なし
@@ -245,22 +362,13 @@ A-LOGI版 A-0.1.3 の設定をそのまま引き継いでいる。次のもの�
   - [ ] 引用符(`"`)で囲まれていない(Excel が引用符付きで保存すると全行が不正行になる)
   - [ ] 氏名にカンマ(`,`)が入っていない(そこで切れて登録される。エラーにならない)
   - [ ] 文字コードは UTF-8(Excel なら「CSV UTF-8(コンマ区切り)」)。Shift_JIS だと氏名が文字化けする
-  - [ ] 研修用のコードを使うなら CSV に入れる
+  - [ ] 研修用 `30000` を入れるかは保留中(現在の CSV には入っている)
 
-### 投入の順番(Firebase の設定と `seed.html` の用意が済んでから。A-LOGI版 HANDOFF の「初期データ投入」と同じ)
+### 投入の順番
 
-1. Authentication のサインアップ(「作成を有効にする」)を**オン**にする(`seed.html` は画面からアカウントを作るため)
-2. 未ログインで ① → Auth の `AAAAA`・`BBBBB`・`CCCCC` ができる(`users` の作成は拒否されるのが正常)。
-   **最初の `users/AAAAA` だけはルールの外で作る**(`name: 管理者A`、`role: admin`、`team: null`、`passwordChanged: false`)。A-LOGI版では南野さんの了承のうえで Claude Code が所有者の権限で1件書き込んだ
-3. `AAAAA` / `AAAAA` でログイン → ① をもう一度(`users` 3件)
-4. ③ 班 → ⑤ チャンネル → ⑦ KYT → ⑥ 手順書サンプル(任意)
-5. ⑧ で名簿CSVを選んで**ドライラン** → 新規の件数・除外0〜3件・不正行0件・氏名の文字化けなしを確かめてから「承認して本実行」
-6. `config/notifications` に `openToAllUsers: true`(boolean)を作る
-7. 管理者権限の付与・初期の所属班の反映(CSV の `権限`・`所属班` 列から)
-8. サインアップを**オフ**に戻す(A-LOGI版では戻し忘れがあったため、読み取りで確認する)
-9. 確認: 乗務員マスタの人数 = CSV の乗務員の行数、管理者3件が一覧に出ない、班2・チャンネル4・KYT 7、乗務員コードと初期パスワードでログインできる
+上の「PC でのデプロイと初期投入の手順」の**手順4**にまとめた(ルール・Functions のデプロイが先)。
 
-### 管理者権限の付与(A-LOGI版で分かった影響)
+### 管理者権限の付与(運用開始後に南野さんが画面から。A-LOGI版で分かった影響)
 
 `role: admin` にした乗務員は管理者の画面だけになり、乗務員としての機能(必読の確認・KYT・報告の投稿)は使えない。匿名を含む全報告が見える。
 既読率・到達率・KYT 進捗の母数から外れる。必読・手順書追加・未読リマインダーの通知は届かず、新着報告の通知が届く。ほかの人の権限を変えられる(自分の権限は変えられない)。
