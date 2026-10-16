@@ -7,7 +7,7 @@
 
 ## ブランチ運用
 
-- `main`: **公開ブランチ**。GitHub Pages（`https://hanyama54321-cyber.github.io/matomete-meiho/`）はこのブランチのルートを配信する（初回公開は M-0.1.0 の予定。**まだ公開していない**）。
+- `main`: **公開ブランチ**。GitHub Pages（`https://hanyama54321-cyber.github.io/matomete-meiho/`）はこのブランチのルートを配信する（2026-10-17 に M-0.1.0 を初回公開）。
   - **このリポジトリは public**。コミットした内容はそのまま公開される。乗務員名簿・パスワード・鍵ファイル、管理者コードやパスワード運用が書かれた配布物（マニュアル類）を置かないこと（理由は [HANDOFF.md](HANDOFF.md) 参照）。
 - `develop`: 開発ブランチ。リリースのタイミングで `main` へマージする。
 - 版番号は `M-x.y.z`（HI-LINE版の `v0.x.y`・A-LOGI版の `A-x.y.z` とは別系統）。タグも同じ名前で付ける。
