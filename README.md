@@ -69,7 +69,7 @@
      ```
      curl -s "https://hanyama54321-cyber.github.io/matomete-meiho/index.html?cb=$RANDOM" | grep -o "const APP_VERSION = '[^']*'"
      ```
-   - ブラウザで開き、**バージョン表記が今回の版**であること・`hasFirebase` が `true` であること・コンソールエラーが無いことをライブ確認
+   - ブラウザで開き、**バージョン表記が今回の版**であること・Firebase が読み込まれ、接続先が `matomete-meiho` であること・コンソールエラーが無いことをライブ確認
    - `https://hanyama54321-cyber.github.io/matomete-meiho/` から実際にログイン（乗務員コード + パスワード）できることを確認
    - 管理者アカウント（AAAAA/BBBBB/CCCCC）・乗務員アカウント（30000番台）それぞれで表示が正しいことを確認
    - **HI-LINE版（`https://hanyama54321-cyber.github.io/matomete-app/`）・A-LOGI版（`https://hanyama54321-cyber.github.io/matomete-alogi/`）が今までどおり動いていることを確認**（同じドメインで配信しているため）
