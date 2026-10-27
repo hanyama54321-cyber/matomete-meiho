@@ -2680,6 +2680,13 @@ const annCategories = [
   { id:'system',  label:'設備',  color:'var(--purple)' },
   { id:'other',   label:'その他', color:'var(--text-sub)' },
 ];
+// 周知のカテゴリ選択は廃止(名豊版)。代わりにタグをワンタップで入れるボタンを置く。
+// 新規作成時は先頭の「安全」を最初から付けておく。
+// ※ annCategories は、カテゴリを持つ旧お知らせの表示用に残している
+const annPresetTags = ['安全', '業務', '設備', 'その他', 'センター'];
+const annDefaultTag = '安全';
+// お知らせのカテゴリ表示用(タグが無い旧お知らせだけ、従来のカテゴリを出す)
+const annLegacyCat = a => (a.category && !(a.tags && a.tags.length)) ? getCat(a.category) : null;
 
 
 /* ===== 周知(お知らせ) =====
@@ -4251,7 +4258,7 @@ function matchesSearch(a, q) {
   const lower = q.toLowerCase();
   const haystacks = [
     a.title, a.body, a.from,
-    getCat(a.category).label,
+    a.category ? getCat(a.category).label : '',
     (a.tags || []).join(' '),
   ];
   return haystacks.some(h => (h || '').toLowerCase().includes(lower));
@@ -4283,7 +4290,7 @@ function highlight(text, q) {
 // お知らせのHTML生成（1件分）
 function renderAnnCard(a, opts={}) {
   const isManager = st.role === 'manager';
-  const cat = getCat(a.category);
+  const cat = annLegacyCat(a);
   const team = getTeam(a.target);
   const reach = calcReach(a);
   const isScheduled = a.status === 'scheduled';
@@ -4316,7 +4323,7 @@ function renderAnnCard(a, opts={}) {
             ${a.mustRead ? '<span class="must-read-badge">✋ 必読</span>' : ''}
             ${isScheduled ? `<span class="scheduled-badge">⏰ ${fmtSchedDate(a.scheduledAt)} 配信予定</span>` : ''}
             ${!isRead && !isManager && !isScheduled && !mustPending ? '<span class="ann-unread-dot" aria-label="未読"></span>' : ''}
-            ${mkTag(cat.label, cat.color)}
+            ${cat ? mkTag(cat.label, cat.color) : ''}
             ${isManager && a.priority==='high' ? mkTag('🔴 重要','var(--danger)') : ''}
             ${isManager ? mkTag('対象: '+escHtml(team.label), 'var(--text-sub)') : ''}
             <span style="font-size:12px;color:var(--text-muted)">${escHtml(a.from)}</span>
@@ -4583,12 +4590,20 @@ function showAnn(id) {
   renderAnnDetailBody(id);
 }
 
+// 関連お知らせのアイコン：タグ(無ければ旧カテゴリ)から決める
+function annIcon(a) {
+  const labels = (a.tags && a.tags.length) ? a.tags : (a.category ? [getCat(a.category).label] : []);
+  const icons = { '安全':'🛡️', '業務':'📋', '設備':'🔧', 'センター':'🏢', '人事':'👥' };
+  const hit = labels.find(l => icons[l]);
+  return hit ? icons[hit] : '📌';
+}
+
 // showAnnの本体描画部分(副作用なし・純粋関数)。readsリスナーの変更検知のたびに再呼び出しされる
 function renderAnnDetailBody(id) {
   const a = findAnn(id);
   if (!a) return;
   const isManager = st.role === 'manager';
-  const cat = getCat(a.category);
+  const cat = annLegacyCat(a);
   const team = getTeam(a.target);
   const dl = deadlineInfo(a.readDeadline);
 
@@ -4649,7 +4664,7 @@ function renderAnnDetailBody(id) {
       </div>
       ${related.slice(0,5).map(r => `
         <div class="related-item" onclick="showAnn('${r.id}')">
-          <div style="font-size:18px">${getCat(r.category).label === '安全' ? '🛡️' : getCat(r.category).label === '業務' ? '📋' : getCat(r.category).label === '人事' ? '👥' : '📌'}</div>
+          <div style="font-size:18px">${annIcon(r)}</div>
           <div class="related-item-content">
             <div class="related-item-title">${escHtml(r.title)}</div>
             <div class="related-item-meta">${escHtml(r.from)} · ${annTimeLabel(r)}</div>
@@ -4665,7 +4680,7 @@ function renderAnnDetailBody(id) {
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
         ${a.pinned?mkTag('📌 固定','var(--primary)'):''}
         ${a.mustRead ? '<span class="must-read-badge">✋ 必読</span>' : ''}
-        ${mkTag(cat.label, cat.color)}
+        ${cat ? mkTag(cat.label, cat.color) : ''}
         ${a.priority==='high'?mkTag('🔴 重要','var(--danger)'):''}
         ${isManager ? mkTag('対象: '+escHtml(team.label), 'var(--text-sub)') : ''}
       </div>
@@ -4770,13 +4785,12 @@ function openAnnEditor(id) {
   const init = a || {
     title: '',
     body: '',
-    category: 'work',
     priority: 'normal',
     target: 'all',
     pinned: false,
     mustRead: false,
     readDeadline: null,
-    tags: [],
+    tags: [annDefaultTag],
     status: 'published',
     scheduledAt: null,
   };
@@ -4830,17 +4844,13 @@ function openAnnEditor(id) {
         </div>
 
         <div class="form-group">
-          <label class="form-label">カテゴリ</label>
-          <div id="ed-cats" style="display:flex;flex-wrap:wrap;gap:8px">
-            ${annCategories.map(c => `
-              <button class="chip${init.category===c.id?' active':''}" data-cat="${c.id}"
-                onclick="selEdCat('${c.id}')">${c.label}</button>
+          <label class="form-label">タグ <span style="font-weight:500;color:var(--text-muted);font-size:11px">（関連お知らせのスレッド化に利用）</span></label>
+          <div id="ed-preset-tags" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+            ${annPresetTags.map(t => `
+              <button type="button" class="chip" data-preset-tag="${escHtml(t)}"
+                onclick="toggleEdPresetTag('${t}')">${escHtml(t)}</button>
             `).join('')}
           </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">タグ <span style="font-weight:500;color:var(--text-muted);font-size:11px">（関連お知らせのスレッド化に利用）</span></label>
           <div class="tag-input-wrap" id="ed-tag-wrap" onclick="document.getElementById('ed-tag-input').focus()">
             <span id="ed-tag-chips"></span>
             <input type="text" id="ed-tag-input" class="tag-input-field"
@@ -4947,7 +4957,6 @@ function openAnnEditor(id) {
 
   // エディタの選択状態を保持
   st.edState = {
-    category: init.category,
     priority: init.priority,
     pinned:   init.pinned,
     timing:   isScheduledInit ? 'scheduled' : 'now',
@@ -4960,6 +4969,10 @@ function openAnnEditor(id) {
 
 /* === エディタ タグ入力 === */
 function renderEdTags() {
+  // タグボタン(安全・業務…)の選択状態を、いま付いているタグに合わせる
+  document.querySelectorAll('#ed-preset-tags .chip').forEach(b => {
+    b.classList.toggle('active', st.edTags.includes(b.dataset.presetTag));
+  });
   const wrap = document.getElementById('ed-tag-chips');
   if (!wrap) return;
   wrap.innerHTML = st.edTags.map((t,i) => `
@@ -5008,6 +5021,21 @@ function removeEdTag(i) {
   renderEdTags();
 }
 
+// タグボタン：押すと付く、もう一度押すと外れる
+function toggleEdPresetTag(t) {
+  const i = st.edTags.indexOf(t);
+  if (i >= 0) {
+    st.edTags.splice(i, 1);
+  } else {
+    if (st.edTags.length >= 5) {
+      showToast('⚠️ タグは最大5個までです');
+      return;
+    }
+    st.edTags.push(t);
+  }
+  renderEdTags();
+}
+
 /* === エディタ 必読・期限 === */
 function toggleEdMustRead() {
   st.edState.mustRead = !st.edState.mustRead;
@@ -5018,13 +5046,6 @@ function toggleEdDeadline() {
   st.edState.hasDeadline = !st.edState.hasDeadline;
   document.getElementById('ed-deadline-toggle').classList.toggle('on', st.edState.hasDeadline);
   document.getElementById('ed-deadline-fields').classList.toggle('hidden', !st.edState.hasDeadline);
-}
-
-function selEdCat(id) {
-  st.edState.category = id;
-  document.querySelectorAll('#ed-cats .chip').forEach(b => {
-    b.classList.toggle('active', b.dataset.cat === id);
-  });
 }
 
 function selEdPrio(id) {
@@ -5161,7 +5182,6 @@ async function saveAnn() {
 
   const payload = {
     title, body,
-    category: ed.category,
     priority: ed.priority,
     target: 'all', // 配信範囲は全員向けのみ(班別配信は設けない)
     pinned: ed.pinned,
@@ -5478,7 +5498,7 @@ async function exportAnnCsv(id) {
   const status = await fetchAnnReadStatus(a.id);
   const { reach, ackedCount } = status;
 
-  const cat = getCat(a.category);
+  const cat = a.category ? getCat(a.category) : null;
   const prio = priorityMap[a.priority];
   const team = getTeam(a.target);
   const targets = reach.targets;
@@ -5488,7 +5508,7 @@ async function exportAnnCsv(id) {
   // ヘッダ部（メタ情報）
   const meta = [
     ['お知らせタイトル', a.title],
-    ['カテゴリ',         cat.label],
+    ['カテゴリ',         cat ? cat.label : '—'],
     ['優先度',           prio.label],
     ['必読',             a.mustRead ? 'はい' : 'いいえ'],
     ['既読期限',         a.readDeadline || '—'],
