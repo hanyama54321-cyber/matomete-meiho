@@ -5849,17 +5849,18 @@ function getChannelMembers(channelId) {
 }
 
 // チャンネルチップを teams マスターから動的生成
-// 全体連絡・昼班・夜班・管理者(管理者だけに表示)をボタンとして並べ、.wrap で折り返し表示する
+// 全体連絡・昼班・夜班をボタンとして並べ、.wrap で折り返し表示する。
+// 管理者チャンネルは管理者だけに表示し、管理者には先頭に置く(名豊版)
 // （横スクロールにせず、どの班も1タップで直接切替できるようにする）
 // 呼称の変更・班の増減があっても teams 配列を更新するだけでチップに反映される
 function renderChannelChips() {
   const host = document.getElementById('channel-chips');
   if (!host) return;
   const channelList = [
+    // 管理者専用は管理者にだけ表示し、先頭に置く(読み書きの制限は firestore.rules 側で行う)
+    ...(fbUser && fbUser.role === 'admin' ? [{ id:'admin', label:'管理者' }] : []),
     { id:'general', label:'全体連絡' },
     ...teams.filter(t => t.id !== 'all').map(t => ({ id:t.id, label:t.displayName })),
-    // 管理者専用は管理者にだけ表示する(読み書きの制限は firestore.rules 側で行う)
-    ...(fbUser && fbUser.role === 'admin' ? [{ id:'admin', label:'管理者' }] : []),
   ];
   const unreadIds = new Set(unreadChatChannelIds());
   host.innerHTML = channelList.map(c => {
@@ -8759,9 +8760,15 @@ fbAuth.onAuthStateChanged(async (user) => {
 
     showAppScreen();
 
-    // ログイン成功時にチャットチャンネル(既定: general)のリスナーを開始
-    currentChannel = 'general';
-    document.getElementById('ch-title').textContent = '全体連絡';
+    // ログイン成功時にチャットチャンネルのリスナーを開始
+    // 既定は全体連絡(general)。管理者権限のある人は管理者チャンネル(admin)を最初に開く(名豊版)
+    if (fbUser.role === 'admin') {
+      currentChannel = 'admin';
+      document.getElementById('ch-title').textContent = '管理者';
+    } else {
+      currentChannel = 'general';
+      document.getElementById('ch-title').textContent = '全体連絡';
+    }
     attachChannelListener(currentChannel);
     renderChannelChips();
   } catch (err) {
